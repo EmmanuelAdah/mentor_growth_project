@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: mentor-growth
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mentor_growth
+    username: postgres
+    password: Emma007.
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+
+server:
+  port: 8089
