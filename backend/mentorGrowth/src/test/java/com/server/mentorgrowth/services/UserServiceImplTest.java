@@ -23,7 +23,7 @@ class UserServiceImplTest {
         request.setFirstName("John");
         request.setLastName("Doe");
         request.setEmail("edo02@gmail.com");
-        request.setRole("MENTOr");
+        request.setRole("ROLE_MENTOR");
 
         UserResponse savedUser = userService.saveUser(request);
         assertNotNull(savedUser);
@@ -50,5 +50,20 @@ class UserServiceImplTest {
         request.setRole("Mentoring");
 
         assertThrows(InvalidRoleException.class, () -> userService.saveUser(request));
+    }
+
+    @Test
+    void testThat_UserExistByEmail() {
+        UserRequest request = new UserRequest();
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setEmail("edo02@gmail.com");
+        request.setRole("Role_Mentor");
+
+        UserResponse savedUser = userService.saveUser(request);
+        UserResponse queriedUser = userService.findById(savedUser.getId());
+
+        assertNotNull(savedUser);
+        assertEquals(queriedUser.getEmail(), savedUser.getEmail());
     }
 }
