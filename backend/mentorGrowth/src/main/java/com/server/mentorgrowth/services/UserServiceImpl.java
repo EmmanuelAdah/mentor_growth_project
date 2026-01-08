@@ -69,6 +69,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByEmail(email);
     }
 
+    public Boolean existById(String id) {
+        return userRepository.existsById(id);
+    }
+
     @Override
     public @Nullable List<UserResponse> getAllMentees() {
         List<User> mentees = userRepository.findByRole(Role.ROLE_MENTEE);

@@ -24,6 +24,7 @@ class UserServiceImplTest {
         request.setLastName("Doe");
         request.setEmail("edo02@gmail.com");
         request.setRole("ROLE_MENTOR");
+        request.setPassword("12345");
 
         UserResponse savedUser = userService.saveUser(request);
         assertNotNull(savedUser);
@@ -37,6 +38,7 @@ class UserServiceImplTest {
         request.setLastName("Doe");
         request.setEmail("edo02@gmail");
         request.setRole("MENTOr");
+        request.setPassword("12345");
 
         assertThrows(InvalidEmailFormatException.class, () -> userService.saveUser(request));
     }
@@ -48,6 +50,7 @@ class UserServiceImplTest {
         request.setLastName("Doe");
         request.setEmail("edo02@gmail.com");
         request.setRole("Mentoring");
+        request.setPassword("12345");
 
         assertThrows(InvalidRoleException.class, () -> userService.saveUser(request));
     }
@@ -59,6 +62,7 @@ class UserServiceImplTest {
         request.setLastName("Doe");
         request.setEmail("edo02@gmail.com");
         request.setRole("Role_Mentor");
+        request.setPassword("12345");
 
         UserResponse savedUser = userService.saveUser(request);
         UserResponse queriedUser = userService.findById(savedUser.getId());
