@@ -15,5 +15,15 @@ spring:
     show-sql: true
     open-in-view: false
 
+  security:
+    user:
+      name: user
+      password: user1
+      roles: ADMIN
+
+Paystack:
+  apiKey: ${SECRET_KEY}
+  uri: ${PAYSTACK_URI}
+
 server:
   port: 8089
