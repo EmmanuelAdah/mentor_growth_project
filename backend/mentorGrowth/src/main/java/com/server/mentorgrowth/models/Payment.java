@@ -4,8 +4,8 @@ package com.server.mentorgrowth.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -17,10 +17,11 @@ public class Payment {
 
     private String menteeId;
     private String mentorId;
-    private BigDecimal amount;
+    private long amount;
     private String currency;
     private String status;
+    private String reference;
 
     @CreationTimestamp
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 }

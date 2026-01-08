@@ -1,14 +1,24 @@
 package com.server.mentorgrowth.services;
 
 import com.server.mentorgrowth.dtos.requests.PaymentRequest;
+import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
+import com.server.mentorgrowth.exceptions.InvalidPaymentReferenceException;
+import com.server.mentorgrowth.exceptions.InvalidUserIdentityException;
+import com.server.mentorgrowth.models.Payment;
+import com.server.mentorgrowth.repositories.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import java.util.Map;
+
+import static com.server.mentorgrowth.utils.Mapper.mapPayment;
+import static com.server.mentorgrowth.utils.Mapper.mapPaymentResponse;
 
 @Slf4j
 @Service
@@ -16,15 +26,17 @@ import java.util.Map;
 public class PaymentServiceImpl implements PaymentService {
     private final WebClient webClient;
     private final UserServiceImpl userService;
+    private final PaymentRepository paymentRepository;
+    private final UserServiceImpl userServiceImpl;
 
     @Value("${Paystack.apiKey}")
     private String secretKey;
 
     @Value("${Paystack.uri}")
-    private String uri;
+    private String baseUri;
 
     @Override
-    public PaymentResponse createPayment(PaymentRequest request) {
+    public InitiatePaymentResponse createPayment(PaymentRequest request) {
 
         UserResponse mentee = userService.findById(request.getMenteeId());
         UserResponse mentor = userService.findById(request.getMentorId());
@@ -37,7 +49,7 @@ public class PaymentServiceImpl implements PaymentService {
         );
 
         String paymentResponse = webClient.post()
-                .uri(uri)
+                .uri(baseUri + "/initialize" )
                 .header("Authorization", "Bearer " + secretKey)
                 .header("Content-type", "application/json")
                 .bodyValue(paymentDetails)
@@ -46,11 +58,66 @@ public class PaymentServiceImpl implements PaymentService {
                 .block();
 
         log.info("Payment Response: {}", paymentResponse);
+        Map<String, Object> response = processPaymentResponse(paymentResponse);
+        Payment payment = mapPayment(mentor.getId(), mentee.getId(), request, response);
+        log.info("Auth url: {}, Reference: {}", response.get("authorizationUrl"), response.get("reference"));
 
-        return new PaymentResponse();
+        paymentRepository.save(payment);
+        InitiatePaymentResponse initiatePayment = new InitiatePaymentResponse();
+        initiatePayment.setAuthorizationUrl(response.get("authorizationUrl").toString());
+        initiatePayment.setReference(response.get("reference").toString());
+
+        return initiatePayment;
     }
 
-    public UserResponse processPaymentResponse(String payment) {
-        return new UserResponse();
+    @Override
+    public PaymentResponse verifyPayment(String userId, String paymentReference) {
+        Boolean isExistingUser = userServiceImpl.existById(userId);
+
+        if (!isExistingUser)
+            throw new InvalidUserIdentityException("Invalid User id: " + userId);
+
+        Payment existingPayment = paymentRepository.findByReference(paymentReference)
+                .orElseThrow(() -> new InvalidPaymentReferenceException("Invalid payment reference: " + paymentReference));
+
+        String verificationDetails = webClient.get()
+                                                .uri(baseUri + "/verify/" + existingPayment.getReference())
+                                                .header("Authorization", "Bearer " + secretKey)
+                                                .retrieve()
+                                                .bodyToMono(String.class)
+                                                .block();
+
+        String paymentStatus = getPaymentStatus(verificationDetails);
+        existingPayment.setStatus(paymentStatus);
+
+        Payment payment = paymentRepository.save(existingPayment);
+        return mapPaymentResponse(payment);
+    }
+
+    private String getPaymentStatus(String verificationDetails) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode payload = mapper.readTree(verificationDetails);
+
+        return payload.get("data")
+                        .path("status")
+                        .asString();
+
+    }
+
+    public Map<String, Object> processPaymentResponse(String payment) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode paymentNode = mapper.readTree(payment);
+
+        String authUrl = paymentNode
+                .get("data")
+                .path("authorization_url")
+                .asString();
+
+        String reference = paymentNode
+                .get("data")
+                .path("reference")
+                .asString();
+
+        return Map.of("authorizationUrl", authUrl, "reference", reference);
     }
 }
