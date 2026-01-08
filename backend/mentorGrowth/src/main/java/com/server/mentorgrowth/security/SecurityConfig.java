@@ -1,6 +1,6 @@
 package com.server.mentorgrowth.security;
 
-import com.server.mentorgrowth.filter.JwtFilterChain;
+//import com.server.mentorgrowth.filter.JwtFilterChain;
 import com.server.mentorgrowth.services.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtFilterChain jwtFilterChain;
+//    private final JwtFilterChain jwtFilterChain;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Bean
@@ -24,14 +24,14 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorizeRequests -> authorizeRequests
-                                .requestMatchers("/api/v1/users/register")
+                                .requestMatchers("/api/v1/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
                 .userDetailsService(userDetailsService)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class)
+//                .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
