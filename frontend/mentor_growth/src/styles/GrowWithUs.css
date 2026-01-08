@@ -1,0 +1,93 @@
+.grow {
+  padding: 4rem 3rem;
+  background: #ffffff;
+}
+
+.grow-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 3rem;
+}
+
+/* Left */
+.grow-text {
+  max-width: 420px;
+}
+
+.grow-text h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.grow-text p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1.8rem;
+}
+
+.grow-btn {
+  background: #e83e8c;
+  border: none;
+  color: white;
+  padding: 0.7rem 1.6rem;
+  border-radius: 22px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.grow-btn:hover {
+  opacity: 0.9;
+}
+
+/* Mentors */
+.grow-mentors {
+  display: flex;
+  gap: 2rem;
+}
+
+.mentor-card {
+  text-align: center;
+}
+
+.mentor-card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.8rem;
+}
+
+.mentor-card h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.mentor-card span {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* Stats Bar */
+.grow-stats {
+  margin-top: 3rem;
+  background: linear-gradient(90deg, #b83280, #f6c39f);
+  border-radius: 10px;
+  padding: 1.8rem 2rem;
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.stat h3 {
+  font-size: 1.6rem;
+  color: #1f2937;
+}
+
+.stat p {
+  font-size: 0.85rem;
+  color: #333;
+}
