@@ -15,7 +15,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private String menteeId;
+    private String userId;
     private String mentorId;
     private long amount;
     private String currency;

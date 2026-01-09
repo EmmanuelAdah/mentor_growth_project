@@ -2,6 +2,8 @@ package com.server.mentorgrowth.dtos.response;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class PaymentResponse {
     private String Id;
@@ -10,4 +12,6 @@ public class PaymentResponse {
     private String status;
     private long amount;
     private String currency;
+
+    private LocalDateTime createdAt;
 }

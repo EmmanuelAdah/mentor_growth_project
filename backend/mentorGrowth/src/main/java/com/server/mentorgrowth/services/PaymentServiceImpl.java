@@ -1,13 +1,17 @@
 package com.server.mentorgrowth.services;
 
 import com.server.mentorgrowth.dtos.requests.PaymentRequest;
+import com.server.mentorgrowth.dtos.requests.VerifyPaymentRequest;
 import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
+import com.server.mentorgrowth.exceptions.InvalidPaymentIdentityException;
 import com.server.mentorgrowth.exceptions.InvalidPaymentReferenceException;
 import com.server.mentorgrowth.exceptions.InvalidUserIdentityException;
+import com.server.mentorgrowth.exceptions.NoPaymentFoundException;
 import com.server.mentorgrowth.models.Payment;
 import com.server.mentorgrowth.repositories.PaymentRepository;
+import com.server.mentorgrowth.utils.Mapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,10 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import java.util.List;
 import java.util.Map;
 
 import static com.server.mentorgrowth.utils.Mapper.mapPayment;
-import static com.server.mentorgrowth.utils.Mapper.mapPaymentResponse;
 
 @Slf4j
 @Service
@@ -71,14 +75,17 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse verifyPayment(String userId, String paymentReference) {
-        Boolean isExistingUser = userServiceImpl.existById(userId);
+    public PaymentResponse verifyPayment(VerifyPaymentRequest request) {
+        Boolean isExistingUser = userServiceImpl.existById(request.getUserId());
 
         if (!isExistingUser)
-            throw new InvalidUserIdentityException("Invalid User id: " + userId);
+            throw new InvalidUserIdentityException("Invalid User id: " + request.getUserId());
 
-        Payment existingPayment = paymentRepository.findByReference(paymentReference)
-                .orElseThrow(() -> new InvalidPaymentReferenceException("Invalid payment reference: " + paymentReference));
+        Payment existingPayment = paymentRepository.findByReference(request.getPaymentReference())
+                .orElseThrow(() -> new InvalidPaymentReferenceException("Invalid payment reference: " + request.getPaymentReference()));
+
+        log.info("Payment reference: {}", existingPayment.getReference());
+        log.info("Base url: {}", baseUri);
 
         String verificationDetails = webClient.get()
                                                 .uri(baseUri + "/verify/" + existingPayment.getReference())
@@ -91,7 +98,7 @@ public class PaymentServiceImpl implements PaymentService {
         existingPayment.setStatus(paymentStatus);
 
         Payment payment = paymentRepository.save(existingPayment);
-        return mapPaymentResponse(payment);
+        return Mapper.mapPayment(payment);
     }
 
     private String getPaymentStatus(String verificationDetails) {
@@ -101,7 +108,6 @@ public class PaymentServiceImpl implements PaymentService {
         return payload.get("data")
                         .path("status")
                         .asString();
-
     }
 
     public Map<String, Object> processPaymentResponse(String payment) {
@@ -119,5 +125,44 @@ public class PaymentServiceImpl implements PaymentService {
                 .asString();
 
         return Map.of("authorizationUrl", authUrl, "reference", reference);
+    }
+
+    @Override
+    public PaymentResponse findById(String id) {
+        return paymentRepository.findById(id)
+                .map(Mapper::mapPayment)
+                .orElseThrow(() -> new InvalidPaymentIdentityException("Invalid payment ID: " + id));
+    }
+
+    @Override
+    public List<PaymentResponse> findAll() {
+        List<Payment> payments = paymentRepository.findAll();
+
+        if (payments.isEmpty())
+            throw new NoPaymentFoundException("No payments found");
+
+        return payments
+                .stream()
+                .map(Mapper::mapPayment)
+                .toList();
+    }
+
+    @Override
+    public List<PaymentResponse> findByUserId(String userId) {
+        List<Payment> payments = paymentRepository.findByUserId(userId);
+
+        if (payments.isEmpty())
+            throw new NoPaymentFoundException("No payments found with user ID: " + userId);
+
+        return payments.stream()
+                .map(Mapper::mapPayment)
+                .toList();
+    }
+
+    @Override
+    public PaymentResponse findByReference(String reference) {
+        return paymentRepository.findByReference(reference)
+                .map(Mapper::mapPayment)
+                .orElseThrow(()-> new InvalidPaymentReferenceException("Invalid Payment Reference: " + reference));
     }
 }
