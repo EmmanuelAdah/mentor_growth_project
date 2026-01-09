@@ -6,14 +6,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Data
+@Entity
 @Table(name = "reviews")
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+    private String userId;
     private String mentorId;
-    private String menteeId;
-
     private String comment;
 
     @CreationTimestamp
