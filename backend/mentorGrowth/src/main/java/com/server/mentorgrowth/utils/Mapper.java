@@ -8,7 +8,6 @@ import com.server.mentorgrowth.exceptions.InvalidRoleException;
 import com.server.mentorgrowth.models.Payment;
 import com.server.mentorgrowth.models.Role;
 import com.server.mentorgrowth.models.User;
-
 import java.util.Map;
 
 public class Mapper {
@@ -44,12 +43,12 @@ public class Mapper {
     }
 
     public static Payment mapPayment(String mentorId,
-                              String menteeId,
+                              String userId,
                               PaymentRequest request,
                               Map<String, Object> map){
 
         Payment payment = new Payment();
-        payment.setMenteeId(menteeId);
+        payment.setUserId(userId);
         payment.setMentorId(mentorId);
         payment.setAmount(request.getAmount());
         payment.setCurrency(request.getCurrency());
@@ -59,14 +58,15 @@ public class Mapper {
         return payment;
     }
 
-    public static PaymentResponse mapPaymentResponse(Payment payment){
+    public static PaymentResponse mapPayment(Payment payment){
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setId(payment.getId());
-        paymentResponse.setUserId(payment.getMenteeId());
+        paymentResponse.setUserId(payment.getUserId());
         paymentResponse.setMentorId(payment.getMentorId());
         paymentResponse.setStatus(payment.getStatus());
         paymentResponse.setAmount(payment.getAmount());
         paymentResponse.setCurrency(payment.getCurrency());
+        paymentResponse.setCreatedAt(payment.getCreatedAt());
 
         return paymentResponse;
     }
