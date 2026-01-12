@@ -10,6 +10,7 @@ import com.server.mentorgrowth.repositories.UserRepository;
 import com.server.mentorgrowth.utils.Mapper;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
@@ -21,6 +22,7 @@ import static com.server.mentorgrowth.utils.Validator.validateUser;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public UserResponse saveUser(UserRequest request){
@@ -30,13 +32,13 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistException("User already exists");
         }
         User user = userRepository.save(map(request));
-        return map(user);
+        return modelMapper.map(user, UserResponse.class);
     }
 
     @Override
     public UserResponse findById(String id){
         return userRepository.findById(id)
-                .map(Mapper::map)
+                .map(user -> modelMapper.map(user, UserResponse.class))
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
@@ -50,7 +52,7 @@ public class UserServiceImpl implements UserService {
     public @Nullable List<UserResponse> findAllUsers() {
         return  userRepository.findAll()
                 .stream()
-                .map(Mapper::map)
+                .map(user -> modelMapper.map(user, UserResponse.class))
                 .collect(Collectors.toList());
     }
 

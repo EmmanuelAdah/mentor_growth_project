@@ -17,5 +17,11 @@ public class UserResponse {
     private String lastName;
     private String email;
     private String role;
+    private String phoneNumber;
+    private String profession;
+    private String linkedin;
+    private String profileImage;
+    private int age;
+
     private LocalDateTime createdAt;
 }

@@ -1,4 +1,4 @@
-package com.server.mentorgrowth.services;
+package com.server.mentorgrowth;
 
 import com.server.mentorgrowth.dtos.requests.UserRequest;
 import com.server.mentorgrowth.dtos.response.UserResponse;
