@@ -42,7 +42,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public InitiatePaymentResponse createPayment(PaymentRequest request) {
 
-        UserResponse mentee = userService.findById(request.getMenteeId());
+        UserResponse mentee = userService.findById(request.getUserId());
         UserResponse mentor = userService.findById(request.getMentorId());
 
         log.info("Mentors details: [{}]", mentor);
