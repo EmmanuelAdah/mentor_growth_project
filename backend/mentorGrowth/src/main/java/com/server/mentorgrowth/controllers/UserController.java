@@ -1,6 +1,5 @@
 package com.server.mentorgrowth.controllers;
 
-import com.server.mentorgrowth.dtos.requests.UserRequest;
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserServiceImpl userService;
-
-    @PostMapping("/register")
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest request){
-        return ResponseEntity.ok(userService.saveUser(request));
-    }
 
     @GetMapping("/get/all")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
