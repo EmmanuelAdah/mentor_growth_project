@@ -1,6 +1,7 @@
-package com.server.mentorgrowth;
+package com.server.mentorgrowth.services;
 
-import com.server.mentorgrowth.dtos.requests.UserRequest;
+import com.server.mentorgrowth.dtos.requests.RegisterRequest;
+import com.server.mentorgrowth.dtos.response.UserAuthResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.exceptions.InvalidEmailFormatException;
 import com.server.mentorgrowth.exceptions.InvalidRoleException;
@@ -12,62 +13,67 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-class UserServiceImplTest {
+class AuthServiceTest {
 
     @Autowired
-    private UserServiceImpl userService;
+    private AuthService authService;
+
+    @Autowired
+    private UserService userService;
 
     @Test
     void saveUser_validCredentials() {
-        UserRequest request = new UserRequest();
+        RegisterRequest request = new RegisterRequest();
         request.setFirstName("John");
         request.setLastName("Doe");
         request.setEmail("edo02@gmail.com");
         request.setRole("ROLE_MENTOR");
         request.setPassword("12345");
 
-        UserResponse savedUser = userService.saveUser(request);
+        UserAuthResponse savedUser = authService.saveUser(request);
+        UserResponse queriedUser = userService.findById(savedUser.getId());
+
         assertNotNull(savedUser);
-        assertEquals(request.getFirstName().toUpperCase(), savedUser.getFirstName());
+        assertEquals(savedUser.getId(), queriedUser.getId());
     }
 
     @Test
     void saveUser_invalidEmail() {
-        UserRequest request = new UserRequest();
+        RegisterRequest request = new RegisterRequest();
         request.setFirstName("John");
         request.setLastName("Doe");
         request.setEmail("edo02@gmail");
         request.setRole("MENTOr");
         request.setPassword("12345");
 
-        assertThrows(InvalidEmailFormatException.class, () -> userService.saveUser(request));
+        assertThrows(InvalidEmailFormatException.class, () -> authService.saveUser(request));
     }
 
     @Test
     void saveUser_invalidRole() {
-        UserRequest request = new UserRequest();
+        RegisterRequest request = new RegisterRequest();
         request.setFirstName("John");
         request.setLastName("Doe");
         request.setEmail("edo02@gmail.com");
         request.setRole("Mentoring");
         request.setPassword("12345");
 
-        assertThrows(InvalidRoleException.class, () -> userService.saveUser(request));
+        assertThrows(InvalidRoleException.class, () -> authService.saveUser(request));
     }
 
     @Test
     void testThat_UserExistByEmail() {
-        UserRequest request = new UserRequest();
+        RegisterRequest request = new RegisterRequest();
         request.setFirstName("John");
         request.setLastName("Doe");
         request.setEmail("edo02@gmail.com");
         request.setRole("Role_Mentor");
         request.setPassword("12345");
 
-        UserResponse savedUser = userService.saveUser(request);
+        UserAuthResponse savedUser = authService.saveUser(request);
         UserResponse queriedUser = userService.findById(savedUser.getId());
 
         assertNotNull(savedUser);
-        assertEquals(queriedUser.getEmail(), savedUser.getEmail());
+        assertEquals(queriedUser.getEmail(), request.getEmail());
     }
 }

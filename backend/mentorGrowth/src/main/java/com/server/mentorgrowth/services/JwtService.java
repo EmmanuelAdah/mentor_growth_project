@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 @Service
@@ -41,6 +43,11 @@ public class JwtService {
     }
 
     public String generateToken(User user) {
+        List<String> roles = user.getAuthorities().stream()
+                .map(authority -> Objects.requireNonNull(authority.getAuthority())
+                        .replace("ROLE_", ""))
+                        .toList();
+
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("roles", user.getAuthorities())
