@@ -1,0 +1,36 @@
+package com.server.mentorgrowth.utils;
+
+import com.server.mentorgrowth.exceptions.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalErrorHandler {
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public Map<String, Object> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(IncompleteTransactionException.class)
+    public Map<String, Object> handleIncompleteTransactionException(IncompleteTransactionException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidPaymentIdentityException.class)
+    public Map<String, Object> handleInvalidPaymentIdentityException(InvalidPaymentIdentityException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidPaymentReferenceException.class)
+    public Map<String, Object> handleInvalidPaymentReferenceException(InvalidPaymentReferenceException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(NoPaymentFoundException.class)
+    public Map<String, Object> handleNoPaymentFoundException(NoPaymentFoundException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+}
