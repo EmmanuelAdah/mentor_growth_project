@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/mentor_growth
-    username: postgres
-    password: Emma007.
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -21,9 +21,14 @@ spring:
       password: user1
       roles: ADMIN
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 Paystack:
   apiKey: ${SECRET_KEY}
-  uri: ${PAYSTACK_URI}
+  uri: ${PAYSTACK_BASE_URI}
 
 server:
   port: 8089
