@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -13,6 +15,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class PeerGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,7 +34,7 @@ public class PeerGroup {
     private Set<User> members;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "creator_id")
     private User creator;
 
     private LocalDateTime createdAt;
