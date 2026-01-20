@@ -45,8 +45,6 @@ public class PaymentServiceImpl implements PaymentService {
         UserResponse mentee = userService.findById(request.getUserId());
         UserResponse mentor = userService.findById(request.getMentorId());
 
-        log.info("Mentors details: [{}]", mentor);
-
         Map<String, Object> paymentDetails = Map.of(
                 "email", mentee.getEmail(),
                 "amount", (request.getAmount() * 100)
