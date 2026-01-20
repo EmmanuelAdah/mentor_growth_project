@@ -26,7 +26,22 @@ public class ReviewController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<ReviewResponse>> getByUserId(@RequestParam String id) {
+    public ResponseEntity<ReviewResponse> findById(@RequestParam String id) {
         return ResponseEntity.ok(reviewService.findById(id));
+    }
+
+    @GetMapping("/mentor/{id}")
+    public ResponseEntity<List<ReviewResponse>> findByUserId(@PathVariable String id) {
+        return ResponseEntity.ok(reviewService.findByMentorId(id));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteById(@PathVariable String id){
+        reviewService.deleteById(id);
+    }
+
+    @DeleteMapping("/user/delete/{id}")
+    public void deleteByUserId(@PathVariable String id){
+        reviewService.deleteByUserId(id);
     }
 }
