@@ -1,7 +1,6 @@
 package com.server.mentorgrowth.services;
 
 import com.server.mentorgrowth.dtos.response.UserResponse;
-import com.server.mentorgrowth.exceptions.UserAlreadyExistException;
 import com.server.mentorgrowth.exceptions.UserNotFoundException;
 import com.server.mentorgrowth.models.Role;
 import com.server.mentorgrowth.models.User;
@@ -14,8 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
-import static com.server.mentorgrowth.utils.Mapper.map;
-import static com.server.mentorgrowth.utils.Validator.validateUser;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +45,8 @@ public class UserServiceImpl implements UserService {
     public List<UserResponse> getAllMentors() {
         List<User> mentors = userRepository.findByRole(Role.ROLE_MENTOR);
 
-        if(mentors.isEmpty()) throw new UserNotFoundException("User not found");
+        if(mentors.isEmpty())
+            throw new UserNotFoundException("User not found");
 
         return mentors.stream()
                 .map(Mapper::map)
@@ -74,7 +72,9 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
-    public void uploadProfilePicture(MultipartFile file){
 
+
+    public UserResponse updateProfilePicture(String id, MultipartFile file){
+        return null;
     }
 }

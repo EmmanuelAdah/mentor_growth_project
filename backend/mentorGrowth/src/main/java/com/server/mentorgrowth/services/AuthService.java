@@ -9,6 +9,7 @@ import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
@@ -35,7 +36,6 @@ public class AuthService {
 
     public UserAuthResponse login(LoginRequest request) {
         User user = userService.findByEmail(request.getEmail());
-        log.info("User email: {} logged in password: {}", user.getEmail(), user.getPassword());
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
             throw new InvalidCredentialsException("Invalid username or password");

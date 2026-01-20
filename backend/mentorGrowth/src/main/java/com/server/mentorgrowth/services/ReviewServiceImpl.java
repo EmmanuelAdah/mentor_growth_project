@@ -2,6 +2,7 @@ package com.server.mentorgrowth.services;
 
 import com.server.mentorgrowth.dtos.requests.ReviewRequest;
 import com.server.mentorgrowth.dtos.response.ReviewResponse;
+import com.server.mentorgrowth.exceptions.InvalidUserIdentityException;
 import com.server.mentorgrowth.exceptions.NoReviewFoundException;
 import com.server.mentorgrowth.exceptions.UserNotFoundException;
 import com.server.mentorgrowth.models.Review;
@@ -53,10 +54,35 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public @Nullable List<ReviewResponse> findById(String id) {
+    public @Nullable ReviewResponse findById(String id) {
         return reviewRepository.findById(id)
+                .map(review -> modelMapper.map(review, ReviewResponse.class))
+                .orElseThrow(() -> new NoReviewFoundException("No review found with the given ID"));
+    }
+
+    @Override
+    public @Nullable List<ReviewResponse> findByMentorId(String id) {
+        return reviewRepository.findByMentorId(id)
                 .stream()
                 .map(review -> modelMapper.map(review, ReviewResponse.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteById(String id){
+        if (!reviewRepository.existsById(id)) {
+            throw new NoReviewFoundException("Review not found with id: " + id);
+        }
+        reviewRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteByUserId(String id) {
+        if(!reviewRepository.existsById(id))
+            throw new InvalidUserIdentityException("User not found with this ID: " + id);
+
+        long deletedItems = reviewRepository.deleteByUserId(id);
+        if (deletedItems < 1)
+            throw new NoReviewFoundException("No review found with the given ID: " + id);
     }
 }

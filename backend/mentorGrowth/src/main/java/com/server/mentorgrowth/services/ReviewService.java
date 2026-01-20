@@ -8,5 +8,8 @@ public interface ReviewService {
 
     ReviewResponse createReview(ReviewRequest reviewRequest);
     List<ReviewResponse> findAll();
-    List<ReviewResponse> findById(String id);
+    ReviewResponse findById(String id);
+    List<ReviewResponse> findByMentorId(String id);
+    void deleteById(String id);
+    void deleteByUserId(String id);
 }
