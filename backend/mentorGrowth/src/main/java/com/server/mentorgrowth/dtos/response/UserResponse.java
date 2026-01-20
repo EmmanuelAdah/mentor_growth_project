@@ -16,12 +16,13 @@ public class UserResponse {
     private String firstName;
     private String lastName;
     private String email;
+    private int age;
     private String role;
+    private String bio;
     private String phoneNumber;
     private String profession;
     private String linkedin;
     private String profileImage;
-    private int age;
 
     private LocalDateTime createdAt;
 }
