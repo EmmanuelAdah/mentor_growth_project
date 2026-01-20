@@ -1,10 +1,13 @@
 package com.server.mentorgrowth.security;
 
 //import com.server.mentorgrowth.filter.JwtFilterChain;
+import com.server.mentorgrowth.filter.JwtFilterChain;
 import com.server.mentorgrowth.services.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-//    private final JwtFilterChain jwtFilterChain;
+    private final JwtFilterChain jwtFilterChain;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Bean
@@ -24,20 +27,19 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorizeRequests -> authorizeRequests
-                                .requestMatchers("/api/v1/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**")
+                                .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/swagger-ui.html")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
                 .userDetailsService(userDetailsService)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
     @Bean
     public PasswordEncoder getPasswordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
-
 }
