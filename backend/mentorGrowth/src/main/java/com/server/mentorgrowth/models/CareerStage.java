@@ -5,8 +5,8 @@ import lombok.Getter;
 @Getter
 public enum CareerStage {
     STUDENT,
-    ENTRY_LEVEL,
-    MID_LEVEL,
+    ENTRY,
+    MID,
     SENIOR;
 
     private CareerStage careerStage;

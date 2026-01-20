@@ -1,18 +1,22 @@
 package com.server.mentorgrowth.utils;
 
 import com.server.mentorgrowth.dtos.requests.PaymentRequest;
-import com.server.mentorgrowth.dtos.requests.UserRequest;
+import com.server.mentorgrowth.dtos.requests.RegisterRequest;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.exceptions.InvalidRoleException;
 import com.server.mentorgrowth.models.Payment;
 import com.server.mentorgrowth.models.Role;
 import com.server.mentorgrowth.models.User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.Map;
+import java.util.Objects;
 
 public class Mapper {
 
-    public static User map(UserRequest request){
+    public static User map(RegisterRequest request){
         User user = new User();
         user.setFirstName(request.getFirstName()
                 .toUpperCase().trim());
@@ -31,15 +35,18 @@ public class Mapper {
     }
 
     public static UserResponse map(User user){
-        UserResponse userResponse = new UserResponse();
-        userResponse.setId(user.getId());
-        userResponse.setFirstName(user.getFirstName());
-        userResponse.setLastName(user.getLastName());
-        userResponse.setEmail(user.getEmail());
-        userResponse.setRole(user.getRole().name());
-        userResponse.setCreatedAt(user.getCreatedAt());
-
-        return userResponse;
+        return UserResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .phoneNumber(user.getPhoneNumber())
+                .profession(user.getProfession())
+                .linkedin(user.getLinkedin())
+                .profileImage(user.getProfileImage())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 
     public static Payment mapPayment(String mentorId,
