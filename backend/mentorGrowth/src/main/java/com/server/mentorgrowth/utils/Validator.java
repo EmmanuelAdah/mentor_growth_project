@@ -1,11 +1,11 @@
 package com.server.mentorgrowth.utils;
 
-import com.server.mentorgrowth.dtos.requests.UserRequest;
+import com.server.mentorgrowth.dtos.requests.RegisterRequest;
 import com.server.mentorgrowth.exceptions.InvalidEmailFormatException;
 
 public class Validator {
 
-    public static void validateUser(UserRequest request) {
+    public static void validateUser(RegisterRequest request) {
         isValidEmail(request.getEmail());
     }
 
