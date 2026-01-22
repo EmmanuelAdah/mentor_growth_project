@@ -15,7 +15,7 @@ public class PaymentRequest {
 
     @NotNull
     @Positive
-    private long amount;
+    private double amount;
 
     @NotNull
     private String currency;

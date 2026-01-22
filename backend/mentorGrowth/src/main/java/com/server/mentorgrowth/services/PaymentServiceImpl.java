@@ -7,7 +7,6 @@ import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.exceptions.InvalidPaymentIdentityException;
 import com.server.mentorgrowth.exceptions.InvalidPaymentReferenceException;
-import com.server.mentorgrowth.exceptions.InvalidUserIdentityException;
 import com.server.mentorgrowth.exceptions.NoPaymentFoundException;
 import com.server.mentorgrowth.models.Payment;
 import com.server.mentorgrowth.repositories.PaymentRepository;
@@ -21,7 +20,6 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
-
 import static com.server.mentorgrowth.utils.Mapper.mapPayment;
 
 @Slf4j
@@ -32,6 +30,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final UserServiceImpl userService;
     private final PaymentRepository paymentRepository;
     private final UserServiceImpl userServiceImpl;
+    private final NotificationServiceImpl notificationService;
 
     @Value("${Paystack.apiKey}")
     private String secretKey;
@@ -59,31 +58,25 @@ public class PaymentServiceImpl implements PaymentService {
                 .bodyToMono(String.class)
                 .block();
 
-        log.info("Payment Response: {}", paymentResponse);
         Map<String, Object> response = processPaymentResponse(paymentResponse);
         Payment payment = mapPayment(mentor.getId(), mentee.getId(), request, response);
-        log.info("Auth url: {}, Reference: {}", response.get("authorizationUrl"), response.get("reference"));
+        log.info("Payment initiated via reference: {}", payment.getReference());
 
         paymentRepository.save(payment);
-        InitiatePaymentResponse initiatePayment = new InitiatePaymentResponse();
-        initiatePayment.setAuthorizationUrl(response.get("authorizationUrl").toString());
-        initiatePayment.setReference(response.get("reference").toString());
+        InitiatePaymentResponse initiatePaymentResponse = new InitiatePaymentResponse();
+        initiatePaymentResponse.setAuthorizationUrl(response.get("authorizationUrl").toString());
+        initiatePaymentResponse.setReference(response.get("reference").toString());
 
-        return initiatePayment;
+        return initiatePaymentResponse;
     }
 
     @Override
     public PaymentResponse verifyPayment(VerifyPaymentRequest request) {
-        Boolean isExistingUser = userServiceImpl.existById(request.getUserId());
-
-        if (!isExistingUser)
-            throw new InvalidUserIdentityException("Invalid User id: " + request.getUserId());
+        UserResponse existingUser = userServiceImpl.findById(request.getUserId());
+        log.info("Verify Payment Request: {}", request.getPaymentReference());
 
         Payment existingPayment = paymentRepository.findByReference(request.getPaymentReference())
                 .orElseThrow(() -> new InvalidPaymentReferenceException("Invalid payment reference: " + request.getPaymentReference()));
-
-        log.info("Payment reference: {}", existingPayment.getReference());
-        log.info("Base url: {}", baseUri);
 
         String verificationDetails = webClient.get()
                                                 .uri(baseUri + "/verify/" + existingPayment.getReference())
@@ -94,9 +87,21 @@ public class PaymentServiceImpl implements PaymentService {
 
         String paymentStatus = getPaymentStatus(verificationDetails);
         existingPayment.setStatus(paymentStatus);
-
         Payment payment = paymentRepository.save(existingPayment);
+        if(paymentStatus.equals("success")) {
+            String message = prepareNoticiation(
+                    existingUser.getFirstName(),
+                    existingUser.getLastName(),
+                    existingPayment.getAmount(),
+                    existingPayment.getCurrency()
+            );
+            notificationService.notifyUser(existingPayment.getMentorId(), message);
+        }
         return Mapper.mapPayment(payment);
+    }
+
+    private String prepareNoticiation(String firstName, String lastName, double amount, String currency) {
+        return String.format("New payment of %s %f.2 recieved from %s for your services", currency, amount, firstName + " " + lastName);
     }
 
     private String getPaymentStatus(String verificationDetails) {

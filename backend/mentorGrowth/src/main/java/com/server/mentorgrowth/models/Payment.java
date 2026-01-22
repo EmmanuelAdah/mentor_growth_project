@@ -18,7 +18,7 @@ public class Payment {
 
     private String userId;
     private String mentorId;
-    private long amount;
+    private double amount;
     private String currency;
     private String status;
     private String reference;
