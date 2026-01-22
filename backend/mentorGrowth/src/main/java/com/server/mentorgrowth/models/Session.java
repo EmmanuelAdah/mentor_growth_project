@@ -21,15 +21,15 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mentorship_id", nullable = false)
-    private Mentorship mentorship;
+    private String userId;
+    private String menteeId;
+    private String mentorshipId;
 
     @Column(nullable = false)
     private LocalDateTime scheduledTime;
 
     @Column(nullable = false)
-    private Integer durationMinutes;
+    private int durationMinutes;
 
     @Column(nullable = false)
     private String status;
