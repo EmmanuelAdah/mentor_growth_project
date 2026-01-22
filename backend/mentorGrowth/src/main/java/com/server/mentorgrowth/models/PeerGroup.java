@@ -34,7 +34,7 @@ public class PeerGroup {
     private Set<User> members;
 
     @ManyToOne
-    @JoinColumn(name = "creator_id")
+//    @JoinColumn(name = "creator_id")
     private User creator;
 
     private LocalDateTime createdAt;
