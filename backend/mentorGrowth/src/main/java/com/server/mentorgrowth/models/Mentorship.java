@@ -5,11 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.PriorityQueue;
 
 @Data
 @Entity
@@ -32,7 +31,6 @@ public class Mentorship {
     @JoinColumn(name = "mentee_id", nullable = false)
     private User mentee;
 
-
     @Enumerated(EnumType.STRING)
     private MentorshipStatus status;
 
@@ -41,5 +39,8 @@ public class Mentorship {
     private LocalDateTime endDate;
 
 //    @OneToMany(mappedBy = "mentorship_id")
-//    private List<Goal> goals = new ArrayList<>();
+//    private PriorityQueue<Goal> goals = new PriorityQueue<>();
+
+    @CreationTimestamp
+    private LocalDateTime createdDate;
 }

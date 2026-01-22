@@ -11,5 +11,6 @@ import java.math.BigDecimal;
 public class Mentor extends User {
     private String rating;
     private double pricing;
+    private boolean isApproved;
     private BigDecimal earnings;
 }
