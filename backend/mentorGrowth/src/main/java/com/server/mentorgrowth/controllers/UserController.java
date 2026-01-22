@@ -5,10 +5,12 @@ import com.server.mentorgrowth.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserServiceImpl userService;
@@ -36,5 +38,10 @@ public class UserController {
     @GetMapping("/mentees/all")
     public ResponseEntity<List<UserResponse>> getAllMentees(){
         return ResponseEntity.ok(userService.getAllMentees());
+    }
+
+    @PutMapping("/update/image")
+    public ResponseEntity<UserResponse> updateProfilePicture(@RequestBody String id, MultipartFile file) {
+        return ResponseEntity.ok(userService.updateProfilePicture(id, file));
     }
 }
