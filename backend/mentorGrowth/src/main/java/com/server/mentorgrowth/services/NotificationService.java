@@ -1,0 +1,14 @@
+package com.server.mentorgrowth.services;
+
+import com.server.mentorgrowth.dtos.response.NotificationResponse;
+
+import java.util.List;
+
+public interface NotificationService {
+
+    NotificationResponse notifyUser(String userId, String message);
+    List<NotificationResponse> findByUserId(String userId);
+    NotificationResponse findById(String id);
+    void deleteById(String id);
+    void deleteByUserId(String id);
+}

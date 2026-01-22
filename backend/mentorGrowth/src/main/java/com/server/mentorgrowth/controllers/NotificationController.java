@@ -1,0 +1,31 @@
+package com.server.mentorgrowth.controllers;
+
+import com.server.mentorgrowth.dtos.response.NotificationResponse;
+import com.server.mentorgrowth.services.NotificationServiceImpl;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/notification")
+@RequiredArgsConstructor
+public class NotificationController {
+    private final NotificationServiceImpl notificationService;
+
+    @PostMapping
+    public ResponseEntity<NotificationResponse> notifyUser(String userId, String message) {
+        return ResponseEntity.ok(notificationService.notifyUser(userId, message));
+    }
+
+    @GetMapping("/get/{userId}")
+    public ResponseEntity<List<NotificationResponse>> getNotifications(@PathVariable String userId) {
+        return ResponseEntity.ok(notificationService.findByUserId(userId));
+    }
+
+    @GetMapping("/find/{id}")
+    public ResponseEntity<NotificationResponse> findById(@PathVariable String id) {
+        return ResponseEntity.ok(notificationService.findById(id));
+    }
+}
