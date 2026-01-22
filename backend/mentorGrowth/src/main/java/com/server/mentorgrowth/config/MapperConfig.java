@@ -1,6 +1,10 @@
 package com.server.mentorgrowth.config;
 
+import com.server.mentorgrowth.dtos.response.NotificationResponse;
+import com.server.mentorgrowth.dtos.response.SessionResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
+import com.server.mentorgrowth.models.Notification;
+import com.server.mentorgrowth.models.Session;
 import com.server.mentorgrowth.models.User;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -13,6 +17,12 @@ public class MapperConfig {
 
     @Bean
     public ModelMapper modelMapper() {
+        modelMapper.getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STANDARD)
+                .setSkipNullEnabled(true)
+                .setFieldMatchingEnabled(true)
+                .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
+
         modelMapper.typeMap(User.class, UserResponse.class)
                 .addMappings(mapper ->
                         mapper.map(
@@ -21,9 +31,8 @@ public class MapperConfig {
                         )
                 );
 
-        modelMapper.getConfiguration()
-                .setMatchingStrategy(MatchingStrategies.STANDARD)
-                .setSkipNullEnabled(true);
+        modelMapper.createTypeMap(Notification.class, NotificationResponse.class);
+        modelMapper.createTypeMap(Session.class, SessionResponse.class);
 
         return modelMapper;
     }

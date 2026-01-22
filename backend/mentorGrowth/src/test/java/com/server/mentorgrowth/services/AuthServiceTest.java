@@ -22,7 +22,7 @@ class AuthServiceTest {
 
     @Test
     void saveUser_withValidFields_shouldReturnUserTest() {
-        when(authService.saveUser(any(RegisterRequest.class))).thenReturn(UserAuthResponse.class);
+//        when(authService.saveUser(any(RegisterRequest.class))).thenReturn(UserAuthResponse.class);
 
         RegisterRequest request = RegisterRequest.builder()
                 .firstName("Emma")

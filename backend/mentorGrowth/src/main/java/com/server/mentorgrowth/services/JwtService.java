@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
@@ -15,6 +16,8 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
+    @Value("${jwt.secret.key}")
+    private String secretKey;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -50,8 +53,8 @@ public class JwtService {
 
         return Jwts.builder()
                 .subject(user.getEmail())
-                .claim("roles", roles)
                 .claim("id", user.getId())
+                .claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 12))
                 .signWith(getSecretKey())
@@ -59,7 +62,6 @@ public class JwtService {
     }
 
     public SecretKey getSecretKey() {
-        String secretKey = "a73527358dbfc41fe06852d684d6de1a984cb2bdbc747a8138c15eddc3bf4e80a24c5aba";
         byte[] decodedKey = Decoders.BASE64URL.decode(secretKey);
         return Keys.hmacShaKeyFor(decodedKey);
     }
