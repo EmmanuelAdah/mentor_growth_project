@@ -1,9 +1,8 @@
-server:
-  port: 8089
 
 spring:
-  application:
-    name: mentor-growth
+  config:
+    activate:
+      on-profile: local
 
   datasource:
     url: jdbc:postgresql://localhost:5432/mentor_growth
@@ -12,11 +11,9 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
-    open-in-view: false
 
   servlet:
     multipart:
