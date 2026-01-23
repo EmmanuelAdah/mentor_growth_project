@@ -23,4 +23,14 @@ public class NotificationController {
     public ResponseEntity<NotificationResponse> findById(@PathVariable String id) {
         return ResponseEntity.ok(notificationService.findById(id));
     }
+
+    @DeleteMapping("/delete/id")
+    public void deleteById(@RequestParam String id){
+        notificationService.deleteById(id);
+    }
+
+    @DeleteMapping("/delete/user/userId")
+    public void deleteByUserId(@RequestParam String userId){
+        notificationService.deleteByUserId(userId);
+    }
 }

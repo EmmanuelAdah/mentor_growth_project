@@ -18,12 +18,12 @@ import java.util.List;
 public class PaymentController {
     private final PaymentServiceImpl paymentService;
 
-    @PostMapping("/payment/create")
+    @PostMapping("/create/payment")
     public ResponseEntity<InitiatePaymentResponse> createPayment(@RequestBody PaymentRequest paymentRequest) {
-        return new ResponseEntity<>(paymentService.createPayment(paymentRequest), HttpStatus.OK);
+        return new ResponseEntity<>(paymentService.createPayment(paymentRequest), HttpStatus.CREATED);
     }
 
-    @GetMapping("/verify/payment")
+    @PatchMapping("/verify/payment")
     public ResponseEntity<PaymentResponse> verifyPayment(@RequestBody VerifyPaymentRequest request) {
         return new ResponseEntity<>(paymentService.verifyPayment(request), HttpStatus.OK);
     }

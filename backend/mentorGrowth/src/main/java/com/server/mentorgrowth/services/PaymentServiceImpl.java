@@ -1,5 +1,6 @@
 package com.server.mentorgrowth.services;
 
+import com.server.mentorgrowth.dtos.requests.NotificationRequest;
 import com.server.mentorgrowth.dtos.requests.PaymentRequest;
 import com.server.mentorgrowth.dtos.requests.VerifyPaymentRequest;
 import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
@@ -13,6 +14,7 @@ import com.server.mentorgrowth.repositories.PaymentRepository;
 import com.server.mentorgrowth.utils.Mapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -30,13 +32,19 @@ public class PaymentServiceImpl implements PaymentService {
     private final UserServiceImpl userService;
     private final PaymentRepository paymentRepository;
     private final UserServiceImpl userServiceImpl;
-    private final NotificationServiceImpl notificationService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Value("${Paystack.apiKey}")
     private String secretKey;
 
     @Value("${Paystack.uri}")
     private String baseUri;
+
+    @Value("${rabbitmq.exchange.name}")
+    private String exchangeName;
+
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
 
     @Override
     public InitiatePaymentResponse createPayment(PaymentRequest request) {
@@ -88,20 +96,21 @@ public class PaymentServiceImpl implements PaymentService {
         String paymentStatus = getPaymentStatus(verificationDetails);
         existingPayment.setStatus(paymentStatus);
         Payment payment = paymentRepository.save(existingPayment);
+
         if(paymentStatus.equals("success")) {
-            String message = prepareNoticiation(
-                    existingUser.getFirstName(),
-                    existingUser.getLastName(),
+            String message = String.format(
+                    "You have received a payment of %s %.2f from %s for your services.",
+                    existingPayment.getCurrency(),
                     existingPayment.getAmount(),
-                    existingPayment.getCurrency()
+                    existingUser.getFirstName() + " " + existingUser.getLastName()
             );
-            notificationService.notifyUser(existingPayment.getMentorId(), message);
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                                                        .userId(existingPayment.getMentorId())
+                                                        .message(message)
+                                                        .build();
+            rabbitTemplate.convertAndSend(exchangeName, routingKey, notificationRequest);
         }
         return Mapper.mapPayment(payment);
-    }
-
-    private String prepareNoticiation(String firstName, String lastName, double amount, String currency) {
-        return String.format("New payment of %s %f.2 recieved from %s for your services", currency, amount, firstName + " " + lastName);
     }
 
     private String getPaymentStatus(String verificationDetails) {
