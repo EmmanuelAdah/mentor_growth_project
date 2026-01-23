@@ -1,6 +1,5 @@
 package com.server.mentorgrowth.repositories;
 
-import com.server.mentorgrowth.dtos.response.NotificationResponse;
 import com.server.mentorgrowth.models.Notification;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.jpa.repository.JpaRepository;

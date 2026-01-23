@@ -1,5 +1,6 @@
 package com.server.mentorgrowth.services;
 
+import com.server.mentorgrowth.dtos.requests.NotificationRequest;
 import com.server.mentorgrowth.dtos.response.NotificationResponse;
 import com.server.mentorgrowth.exceptions.DeleteNotificationException;
 import com.server.mentorgrowth.exceptions.NotificationNotFoundException;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,19 +25,19 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserServiceImpl userServiceImpl;
     private final NotificationRepository notificationRepository;
 
-    @Override
-    public NotificationResponse notifyUser(String userId, String message) {
-        Boolean isExistingUser = userServiceImpl.existById(userId);
+    @RabbitListener(queues = "${rabbitmq.queue.name}")
+    public void notifyUser(NotificationRequest request) {
+        log.info("Received notification request: {}", request);
+        Boolean isExistingUser = userServiceImpl.existById(request.getUserId());
         if (!isExistingUser) {
-            throw new UserNotFoundException("User not found with id: " + userId);
+            throw new UserNotFoundException("User not found with id: " + request.getUserId());
         }
         Notification notification = Notification.builder()
-                                                .userId(userId)
-                                                .message(message)
+                                                .userId(request.getUserId())
+                                                .message(request.getMessage())
                                                 .build();
         Notification savedNotification = notificationRepository.save(notification);
         log.info("Notification for user: {}", savedNotification.getUserId());
-        return modelMapper.map(savedNotification, NotificationResponse.class);
     }
 
     @Override

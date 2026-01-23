@@ -14,11 +14,6 @@ import java.util.List;
 public class NotificationController {
     private final NotificationServiceImpl notificationService;
 
-    @PostMapping
-    public ResponseEntity<NotificationResponse> notifyUser(String userId, String message) {
-        return ResponseEntity.ok(notificationService.notifyUser(userId, message));
-    }
-
     @GetMapping("/get/{userId}")
     public ResponseEntity<List<NotificationResponse>> getNotifications(@PathVariable String userId) {
         return ResponseEntity.ok(notificationService.findByUserId(userId));
