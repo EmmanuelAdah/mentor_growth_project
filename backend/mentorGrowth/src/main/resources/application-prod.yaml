@@ -13,3 +13,9 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
+
+  rabbitmq:
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    port: 5672
+    host: localhost
