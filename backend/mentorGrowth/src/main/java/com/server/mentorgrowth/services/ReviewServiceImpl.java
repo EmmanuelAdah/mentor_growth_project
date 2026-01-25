@@ -7,6 +7,7 @@ import com.server.mentorgrowth.exceptions.NoReviewFoundException;
 import com.server.mentorgrowth.exceptions.UserNotFoundException;
 import com.server.mentorgrowth.models.Review;
 import com.server.mentorgrowth.repositories.ReviewRepository;
+import com.server.mentorgrowth.services.interfaces.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;

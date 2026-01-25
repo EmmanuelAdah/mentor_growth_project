@@ -7,6 +7,7 @@ import com.server.mentorgrowth.exceptions.NotificationNotFoundException;
 import com.server.mentorgrowth.exceptions.UserNotFoundException;
 import com.server.mentorgrowth.models.Notification;
 import com.server.mentorgrowth.repositories.NotificationRepository;
+import com.server.mentorgrowth.services.interfaces.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;

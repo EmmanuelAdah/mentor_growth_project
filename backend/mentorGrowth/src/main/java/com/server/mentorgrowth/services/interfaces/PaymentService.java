@@ -1,4 +1,4 @@
-package com.server.mentorgrowth.services;
+package com.server.mentorgrowth.services.interfaces;
 
 import com.server.mentorgrowth.dtos.requests.PaymentRequest;
 import com.server.mentorgrowth.dtos.requests.VerifyPaymentRequest;

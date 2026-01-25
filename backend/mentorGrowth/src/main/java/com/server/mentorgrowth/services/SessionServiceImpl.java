@@ -6,6 +6,7 @@ import com.server.mentorgrowth.exceptions.NotExistingMentorshipException;
 import com.server.mentorgrowth.exceptions.UserNotFoundException;
 import com.server.mentorgrowth.models.Session;
 import com.server.mentorgrowth.repositories.SessionRepository;
+import com.server.mentorgrowth.services.interfaces.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
@@ -17,6 +18,7 @@ public class SessionServiceImpl implements SessionService {
     private final SessionRepository sessionRepository;
     private final UserServiceImpl userService;
     private final MentorshipServiceImpl mentorshipService;
+    private final ModelMapper modelMapper;
 //    private final ModelMapper modelMapper;
 
     public @Nullable SessionResponse createSession(SessionRequest request) {
@@ -30,8 +32,8 @@ public class SessionServiceImpl implements SessionService {
         if (!isMentorshipExist) {
             throw new NotExistingMentorshipException("No existing mentorship relation found");
         }
-        sessionRepository.save(new Session());
+        Session savedSession = sessionRepository.save(modelMapper.map(request, Session.class));
 
-        return new SessionResponse();
+        return modelMapper.map(savedSession, SessionResponse.class);
     }
 }

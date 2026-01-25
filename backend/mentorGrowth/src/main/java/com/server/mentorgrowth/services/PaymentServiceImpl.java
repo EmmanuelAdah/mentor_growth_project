@@ -11,6 +11,7 @@ import com.server.mentorgrowth.exceptions.InvalidPaymentReferenceException;
 import com.server.mentorgrowth.exceptions.NoPaymentFoundException;
 import com.server.mentorgrowth.models.Payment;
 import com.server.mentorgrowth.repositories.PaymentRepository;
+import com.server.mentorgrowth.services.interfaces.PaymentService;
 import com.server.mentorgrowth.utils.Mapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

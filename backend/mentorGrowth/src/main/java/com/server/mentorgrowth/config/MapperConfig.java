@@ -1,5 +1,6 @@
 package com.server.mentorgrowth.config;
 
+import com.server.mentorgrowth.dtos.requests.SessionRequest;
 import com.server.mentorgrowth.dtos.response.NotificationResponse;
 import com.server.mentorgrowth.dtos.response.SessionResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
@@ -32,6 +33,7 @@ public class MapperConfig {
                 );
 
         modelMapper.createTypeMap(Notification.class, NotificationResponse.class);
+        modelMapper.createTypeMap(SessionRequest.class, Session.class);
         modelMapper.createTypeMap(Session.class, SessionResponse.class);
 
         return modelMapper;

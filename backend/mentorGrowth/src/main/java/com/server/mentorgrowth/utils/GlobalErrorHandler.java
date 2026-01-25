@@ -3,7 +3,6 @@ package com.server.mentorgrowth.utils;
 import com.server.mentorgrowth.exceptions.*;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import java.util.Map;
 
 @RestControllerAdvice
@@ -31,6 +30,26 @@ public class GlobalErrorHandler {
 
     @ExceptionHandler(NoPaymentFoundException.class)
     public Map<String, Object> handleNoPaymentFoundException(NoPaymentFoundException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidEmailFormatException.class)
+    public Map<String, Object> handleInvalidEmailFormatException(InvalidEmailFormatException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidUserIdentityException.class)
+    public Map<String, Object> handleInvalidUserIdentityException(InvalidUserIdentityException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(NotExistingMentorshipException.class)
+    public Map<String, Object> handleNotExistingMentorshipException(NotExistingMentorshipException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidRoleException.class)
+    public Map<String, Object> handleInvalidRoleException(InvalidRoleException ex) {
         return Map.of("message", ex.getMessage());
     }
 }
