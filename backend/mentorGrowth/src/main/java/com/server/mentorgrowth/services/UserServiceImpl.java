@@ -6,6 +6,7 @@ import com.server.mentorgrowth.exceptions.UserNotFoundException;
 import com.server.mentorgrowth.models.Role;
 import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.UserRepository;
+import com.server.mentorgrowth.services.interfaces.UserService;
 import com.server.mentorgrowth.utils.Mapper;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;

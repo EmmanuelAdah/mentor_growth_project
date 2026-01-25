@@ -1,6 +1,5 @@
-package com.server.mentorgrowth.services;
+package com.server.mentorgrowth.services.interfaces;
 
-import com.server.mentorgrowth.dtos.requests.RegisterRequest;
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.models.User;
 import org.springframework.web.multipart.MultipartFile;
