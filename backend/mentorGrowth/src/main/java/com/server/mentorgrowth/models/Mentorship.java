@@ -6,9 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UuidGenerator;
 import java.time.LocalDateTime;
-import java.util.PriorityQueue;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -18,29 +18,23 @@ import java.util.PriorityQueue;
 @Table(name = "mentorship_relation")
 public class Mentorship {
     @Id
-    @GeneratedValue
-    @UuidGenerator
-    @Column(length = 36)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "mentor_id", nullable = false)
-    private User mentor;
-
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentee_id", nullable = false)
     private User mentee;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mentor_id", nullable = false)
+    private User mentor;
+
     @Enumerated(EnumType.STRING)
-    private MentorshipStatus status;
+    private MentorshipStatus status = MentorshipStatus.ACTIVE;
 
-    private LocalDateTime startDate;
-
-    private LocalDateTime endDate;
-
-//    @OneToMany(mappedBy = "mentorship_id")
-//    private PriorityQueue<Goal> goals = new PriorityQueue<>();
+    @OneToMany(mappedBy = "mentorship", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Goal> goals = new ArrayList<>();
 
     @CreationTimestamp
-    private LocalDateTime createdDate;
+    private LocalDateTime createdAt;
 }
