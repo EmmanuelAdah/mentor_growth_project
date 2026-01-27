@@ -9,6 +9,8 @@ import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
@@ -22,6 +24,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     public UserAuthResponse saveUser(RegisterRequest request){
         request.setPassword(Objects.requireNonNull(passwordEncoder.encode(request.getPassword())));
@@ -48,5 +51,18 @@ public class AuthService {
                 .token(token)
                 .id(user.getId())
                 .build();
+    }
+
+    public @Nullable UserAuthResponse googleLogin(String email, String name) {
+        String[] names = Objects.requireNonNull(name).split(" ");
+        log.info("Google login from email: {}", email);
+
+        User user = new User();
+        user.setEmail(email);
+        user.setFirstName(names[0]);
+        user.setLastName(names[1]);
+
+        User savedUser = userRepository.save(user);
+        return modelMapper.map(Objects.requireNonNull(savedUser), UserAuthResponse.class);
     }
 }
