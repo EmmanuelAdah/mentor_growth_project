@@ -15,6 +15,16 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: profile, email
+            redirect-uri: ${GOOGLE_OAUTH_REDIRECT_URL}
+
   servlet:
     multipart:
       max-file-size: 10MB
@@ -38,3 +48,6 @@ Cloudinary:
   cloud-name: ${CLOUDINARY_NAME}
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
+
+google:
+  credentials: ${GOOGLE_APPLICATION_CREDENTIALS}

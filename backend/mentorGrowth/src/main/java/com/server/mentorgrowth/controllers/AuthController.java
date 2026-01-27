@@ -7,15 +7,10 @@ import com.server.mentorgrowth.exceptions.ServerConnectionException;
 import com.server.mentorgrowth.services.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ServerErrorException;
-
-import javax.sql.rowset.serial.SerialException;
 import java.io.IOException;
 import java.util.Objects;
 
