@@ -3,14 +3,20 @@ package com.server.mentorgrowth.services;
 import com.server.mentorgrowth.dtos.requests.MentorshipRequest;
 import com.server.mentorgrowth.dtos.response.MentorshipResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
+import com.server.mentorgrowth.exceptions.MentorshipNotFoundException;
+import com.server.mentorgrowth.models.Goal;
 import com.server.mentorgrowth.models.Mentorship;
 import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.MentorshipRepository;
 import com.server.mentorgrowth.services.interfaces.MentorshipService;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Objects;
+
+import static reactor.netty.http.HttpConnectionLiveness.log;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +26,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     private final ModelMapper modelMapper;
 
     public Mentorship createMentorship(MentorshipRequest request) {
+        log.info("There a mentorship call with this {}", request);
         UserResponse mentor = userService.findById(request.getMentorId());
         UserResponse mentee = userService.findById(request.getUserId());
 
@@ -30,14 +37,12 @@ public class MentorshipServiceImpl implements MentorshipService {
         return mentorshipRepository.save(mentorship);
     }
 
-    public Boolean isMentorshipExist(String id) {
-        return mentorshipRepository.existsById(id);
+    public @Nullable Mentorship createMentorshipGoals(List<Goal> goals) {
+        return null;
     }
 
-    public List<MentorshipResponse> findValidMentorships(String userId, String mentorId) {
-        return mentorshipRepository.findValidMentorship(userId, mentorId)
-                .stream()
-                .map(mentorship -> modelMapper.map(mentorship, MentorshipResponse.class))
-                .toList();
+    public @Nullable Mentorship findById(String id) {
+        return Objects.requireNonNull(mentorshipRepository.findById(id))
+                .orElseThrow(() -> new MentorshipNotFoundException("Mentorship not found with id: " + id));
     }
 }
