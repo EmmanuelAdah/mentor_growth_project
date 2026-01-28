@@ -62,4 +62,5 @@ rabbitmq:
     key: mentorship_routing_key
 
 google:
-  credentials: ${GOOGLE_APPLICATION_CREDENTIALS}
+  credentials:
+    path: ${GOOGLE_APPLICATION_CREDENTIALS}

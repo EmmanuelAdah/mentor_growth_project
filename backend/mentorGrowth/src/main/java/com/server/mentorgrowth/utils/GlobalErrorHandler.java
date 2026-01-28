@@ -52,4 +52,29 @@ public class GlobalErrorHandler {
     public Map<String, Object> handleInvalidRoleException(InvalidRoleException ex) {
         return Map.of("message", ex.getMessage());
     }
+
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public Map<String, Object> handleUserAlreadyExistException(UserAlreadyExistException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public Map<String, Object> handleUserNotFoundException(UserNotFoundException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(NotificationNotFoundException.class)
+    public Map<String, Object> handleNotificationNotFoundException(NotificationNotFoundException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(NoReviewFoundException.class)
+    public Map<String, Object> handleNoReviewFoundException(NoReviewFoundException ex) {
+        return Map.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(MentorshipNotFoundException.class)
+    public Map<String, Object> handleMentorshipNotFoundException(MentorshipNotFoundException ex) {
+        return Map.of("message", ex.getMessage());
+    }
 }
