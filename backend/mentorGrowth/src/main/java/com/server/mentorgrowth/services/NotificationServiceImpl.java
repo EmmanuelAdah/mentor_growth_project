@@ -35,6 +35,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
         Notification notification = Notification.builder()
                                                 .userId(request.getUserId())
+                                                .title(request.getTitle())
                                                 .message(request.getMessage())
                                                 .build();
         Notification savedNotification = notificationRepository.save(notification);
