@@ -4,6 +4,7 @@ import com.server.mentorgrowth.dtos.requests.PaymentRequest;
 import com.server.mentorgrowth.dtos.requests.VerifyPaymentRequest;
 import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
+import com.server.mentorgrowth.models.Payment;
 import com.server.mentorgrowth.services.PaymentServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

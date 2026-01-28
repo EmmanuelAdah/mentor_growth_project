@@ -1,6 +1,5 @@
 package com.server.mentorgrowth.models;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,8 +15,14 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private String userId;
-    private String mentorId;
+    @JoinColumn(name = "mentee_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Mentee mentee;
+
+    @JoinColumn(name = "mentor_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Mentor mentor;
+
     private double amount;
     private String currency;
     private String status;
