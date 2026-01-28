@@ -5,14 +5,8 @@ import com.server.mentorgrowth.dtos.requests.RegisterRequest;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.exceptions.InvalidRoleException;
-import com.server.mentorgrowth.models.Payment;
-import com.server.mentorgrowth.models.Role;
-import com.server.mentorgrowth.models.User;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
+import com.server.mentorgrowth.models.*;
 import java.util.Map;
-import java.util.Objects;
 
 public class Mapper {
 
@@ -49,14 +43,14 @@ public class Mapper {
                 .build();
     }
 
-    public static Payment mapPayment(String mentorId,
-                              String userId,
+    public static Payment mapPayment(Mentor mentor,
+                              Mentee mentee,
                               PaymentRequest request,
                               Map<String, Object> map){
 
         Payment payment = new Payment();
-        payment.setUserId(userId);
-        payment.setMentorId(mentorId);
+        payment.setMentee(mentee);
+        payment.setMentor(mentor);
         payment.setAmount(request.getAmount());
         payment.setCurrency(request.getCurrency());
         payment.setReference(map.get("reference").toString());
@@ -66,15 +60,16 @@ public class Mapper {
     }
 
     public static PaymentResponse mapPayment(Payment payment){
-        PaymentResponse paymentResponse = new PaymentResponse();
-        paymentResponse.setId(payment.getId());
-        paymentResponse.setUserId(payment.getUserId());
-        paymentResponse.setMentorId(payment.getMentorId());
-        paymentResponse.setStatus(payment.getStatus());
-        paymentResponse.setAmount(payment.getAmount());
-        paymentResponse.setCurrency(payment.getCurrency());
-        paymentResponse.setCreatedAt(payment.getCreatedAt());
+        PaymentResponse response = new PaymentResponse();
+        response.setId(payment.getId());
+        response.setUserId(payment.getMentee().getId());
+        response.setMentorId(payment.getMentor().getId());
+        response.setAmount(payment.getAmount());
+        response.setCurrency(payment.getCurrency());
+        response.setReference(payment.getReference());
+        response.setStatus(payment.getStatus());
+        response.setCreatedAt(payment.getCreatedAt());
 
-        return paymentResponse;
+        return response;
     }
 }

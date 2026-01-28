@@ -1,12 +1,7 @@
 package com.server.mentorgrowth.config;
 
-import com.server.mentorgrowth.dtos.requests.SessionRequest;
-import com.server.mentorgrowth.dtos.response.NotificationResponse;
-import com.server.mentorgrowth.dtos.response.SessionResponse;
-import com.server.mentorgrowth.dtos.response.UserResponse;
-import com.server.mentorgrowth.models.Notification;
-import com.server.mentorgrowth.models.Session;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.dtos.response.*;
+import com.server.mentorgrowth.models.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -33,8 +28,11 @@ public class MapperConfig {
                 );
 
         modelMapper.createTypeMap(Notification.class, NotificationResponse.class);
-        modelMapper.createTypeMap(SessionRequest.class, Session.class);
         modelMapper.createTypeMap(Session.class, SessionResponse.class);
+        modelMapper.createTypeMap(Review.class, ReviewResponse.class);
+        modelMapper.createTypeMap(Mentorship.class, MentorshipResponse.class);
+        modelMapper.createTypeMap(UserResponse.class, User.class);
+        modelMapper.createTypeMap(Payment.class, PaymentResponse.class);
 
         return modelMapper;
     }
