@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static reactor.netty.http.HttpConnectionLiveness.log;
-
 @RestController
 @RequestMapping("/api/mentorship")
 @RequiredArgsConstructor

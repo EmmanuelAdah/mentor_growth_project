@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
     private final UserServiceImpl userService;
-    private final ModelMapper modelMapper;
     private final ReviewRepository reviewRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public ReviewResponse createReview(ReviewRequest reviewRequest) {

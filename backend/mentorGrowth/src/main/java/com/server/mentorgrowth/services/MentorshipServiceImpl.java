@@ -1,7 +1,6 @@
 package com.server.mentorgrowth.services;
 
 import com.server.mentorgrowth.dtos.requests.MentorshipRequest;
-import com.server.mentorgrowth.dtos.response.MentorshipResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.exceptions.MentorshipNotFoundException;
 import com.server.mentorgrowth.models.Goal;

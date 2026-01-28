@@ -1,9 +1,6 @@
 package com.server.mentorgrowth.dtos.response;
 
-import com.server.mentorgrowth.models.Mentee;
-import com.server.mentorgrowth.models.Mentor;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 @Data
