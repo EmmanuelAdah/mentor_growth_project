@@ -1,50 +1,31 @@
 package com.server.mentorgrowth.services;
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.*;
-import com.google.auth.http.HttpCredentialsAdapter;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.server.mentorgrowth.dtos.requests.SessionRequest;
-import com.server.mentorgrowth.dtos.response.SessionResponse;
-import com.server.mentorgrowth.exceptions.NotExistingMentorshipException;
-import com.server.mentorgrowth.models.Session;
-import com.server.mentorgrowth.repositories.SessionRepository;
+import com.server.mentorgrowth.models.Mentorship;
 import com.server.mentorgrowth.services.interfaces.SessionService;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
+import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
-import static com.server.mentorgrowth.utils.Mapper.mapSession;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
-    private final SessionRepository sessionRepository;
+    private final Calendar calendar;
     private final MentorshipServiceImpl mentorshipService;
-    private final ModelMapper modelMapper;
 
-    @Value("${google.credentials}")
-    private String googleCredentials;
-
-    public @Nullable SessionResponse createSession(SessionRequest request) {
-        Boolean isMentorshipExist = mentorshipService.isMentorshipExist(request.getMentorshipId());
-
-        if (!isMentorshipExist) {
-            throw new NotExistingMentorshipException("No existing mentorship relation found");
-        }
-
-        String meetUrl;
+    @Override
+    public String createSession(String mentorshipId) {
+        Mentorship mentorship = mentorshipService.findById(mentorshipId);
+        log.info("Creating session for mentorship: {}", Objects.requireNonNull(mentorship).getId());
+        LocalDateTime startTime = LocalDateTime.of(2026, 2, 1, 22, 0);
+        int durationMinutes = 45;
 
         try {
             Event event = new Event()
@@ -52,54 +33,32 @@ public class SessionServiceImpl implements SessionService {
                     .setVisibility("private")
                     .setGuestsCanInviteOthers(false)
                     .setGuestsCanSeeOtherGuests(false)
-                    .setStart(new EventDateTime()
-                            .setDateTime(new DateTime("2026-02-01T22:00:00+01:00"))) // set the start time
-                    .setEnd(new EventDateTime()
-                            .setDateTime(new DateTime("2026-02-01T23:00:00+01:00"))) // set the end time
-                    .setConferenceData(
-                            new ConferenceData().setCreateRequest(
-                                    new CreateConferenceRequest()
-                                            .setRequestId(UUID.randomUUID().toString())
-                                            .setConferenceSolutionKey(
-                                                    new ConferenceSolutionKey()
-                                                            .setType("hangoutsMeet")
-                                            )
-                            )
-                    );
-            GoogleCredentials credentials = GoogleCredentials
-                    .fromStream(new FileInputStream(googleCredentials))
-                    .createScoped(Collections.singleton(CalendarScopes.CALENDAR));
-
-            HttpRequestInitializer requestInitializer =
-                    new HttpCredentialsAdapter(credentials);
-
-            Calendar calendar = new Calendar.Builder(
-                    GoogleNetHttpTransport.newTrustedTransport(),
-                    JacksonFactory.getDefaultInstance(),
-                    requestInitializer
-            )
-                    .setApplicationName("Mentor Growth")
-                    .build();
+                    .setStart(new EventDateTime().setDateTime(new DateTime(startTime.toString())))
+                    .setEnd(new EventDateTime().setDateTime(
+                            new DateTime(startTime.plusMinutes(durationMinutes).toString())
+                    ))
+                    .setConferenceData(new ConferenceData().setCreateRequest(
+                            new CreateConferenceRequest()
+                                    .setRequestId(UUID.randomUUID().toString())
+                                    .setConferenceSolutionKey(
+                                            new ConferenceSolutionKey().setType("hangoutsMeet")
+                                    )
+                    ));
 
             Event created = calendar.events()
                     .insert("primary", event)
                     .setConferenceDataVersion(1)
-                    .setSendUpdates("none")
                     .execute();
 
-            meetUrl = created.getConferenceData()
-                    .getEntryPoints()
+            return created.getConferenceData().getEntryPoints()
                     .stream()
                     .filter(e -> "video".equals(e.getEntryPointType()))
                     .findFirst()
-                    .orElseThrow()
+                    .orElseThrow(() -> new RuntimeException("No video link found"))
                     .getUri();
-        } catch (IOException | GeneralSecurityException exception) {
-            throw new RuntimeException(exception);
-        }
 
-        request.setMeetingLink(meetUrl);
-        Session savedSession = sessionRepository.save(mapSession(request));
-        return modelMapper.map(savedSession, SessionResponse.class);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create Google Calendar event", e);
+        }
     }
 }

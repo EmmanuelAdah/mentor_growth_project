@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
@@ -21,9 +21,9 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private String userId;
-    private String menteeId;
-    private String mentorshipId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mentorship_id")
+    private Mentorship mentorship;
 
     @Column(nullable = false)
     private LocalDateTime scheduledTime;
@@ -39,7 +39,7 @@ public class Session {
 
     private String meetingLink;
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
 }
