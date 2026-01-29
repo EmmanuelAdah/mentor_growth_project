@@ -9,21 +9,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/payment")
 @RequiredArgsConstructor
 public class PaymentController {
     private final PaymentServiceImpl paymentService;
 
-    @PostMapping("/create/payment")
+    @PostMapping("/create")
     public ResponseEntity<InitiatePaymentResponse> createPayment(@RequestBody PaymentRequest paymentRequest) {
         return new ResponseEntity<>(paymentService.createPayment(paymentRequest), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/verify/payment")
+    @PatchMapping("/verify")
     public ResponseEntity<PaymentResponse> verifyPayment(@RequestBody VerifyPaymentRequest request) {
         return new ResponseEntity<>(paymentService.verifyPayment(request), HttpStatus.OK);
     }
@@ -31,6 +30,11 @@ public class PaymentController {
     @GetMapping("/id")
     public ResponseEntity<PaymentResponse> findById(@RequestParam String id) {
         return ResponseEntity.ok(paymentService.findById(id));
+    }
+
+    @GetMapping("/user/id")
+    public ResponseEntity<List<PaymentResponse>> findByUserId(@RequestParam String userId) {
+        return ResponseEntity.ok(paymentService.findByUserId(userId));
     }
 
     @GetMapping("/get/payment/{reference}")

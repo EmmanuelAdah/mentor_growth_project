@@ -9,6 +9,5 @@ import java.util.Optional;
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByReference(String reference);
     Optional<Payment> findById(String id);
-
-    List<Payment> findByUserId(String userId);
+    List<Payment> findByMentee_Id(String menteeId);
 }

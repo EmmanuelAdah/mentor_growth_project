@@ -169,7 +169,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentResponse> findByUserId(String userId) {
-        List<Payment> payments = paymentRepository.findByUserId(userId);
+        List<Payment> payments = paymentRepository.findByMentee_Id(userId);
 
         if (payments.isEmpty())
             throw new NoPaymentFoundException("No payments found with user ID: " + userId);
