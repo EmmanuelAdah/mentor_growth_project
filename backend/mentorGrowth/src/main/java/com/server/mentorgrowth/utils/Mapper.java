@@ -34,7 +34,6 @@ public class Mapper {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
-                .role(user.getRole().name())
                 .phoneNumber(user.getPhoneNumber())
                 .profession(user.getProfession())
                 .linkedin(user.getLinkedin())
