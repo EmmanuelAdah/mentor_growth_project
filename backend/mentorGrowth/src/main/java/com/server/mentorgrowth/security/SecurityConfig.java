@@ -28,6 +28,12 @@ public class SecurityConfig {
                 authorizeRequests -> authorizeRequests
                                 .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/swagger-ui.html")
                                 .permitAll()
+                        .requestMatchers("/api/mentorship/**")
+                        .hasAnyRole("MENTOR", "ADMIN")
+                        .requestMatchers("/api/notification")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/api/v1/payment")
+                        .hasRole("MENTEE")
                                 .anyRequest()
                                 .authenticated())
                 .userDetailsService(userDetailsService)
