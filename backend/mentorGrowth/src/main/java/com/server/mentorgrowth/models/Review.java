@@ -14,8 +14,11 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
     private String userId;
     private String mentorId;
+
+
     private String comment;
 
     @CreationTimestamp

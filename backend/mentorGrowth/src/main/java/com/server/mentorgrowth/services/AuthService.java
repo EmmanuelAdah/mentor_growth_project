@@ -55,7 +55,7 @@ public class AuthService {
 
     public @Nullable UserAuthResponse googleLogin(String email, String name) {
         String[] names = Objects.requireNonNull(name).split(" ");
-        log.info("Google login from email: {}", email);
+        log.info("Google login from email: {} and name: {} {}", email, names[0], names[1]);
 
         User user = new User();
         user.setEmail(email);

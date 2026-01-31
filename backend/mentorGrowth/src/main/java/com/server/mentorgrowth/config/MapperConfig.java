@@ -19,7 +19,7 @@ public class MapperConfig {
                 .setMatchingStrategy(MatchingStrategies.STANDARD)
                 .setSkipNullEnabled(true)
                 .setFieldMatchingEnabled(true)
-                        .setFieldAccessLevel(AccessLevel.PRIVATE);
+                .setFieldAccessLevel(AccessLevel.PRIVATE);
 
         modelMapper.typeMap(User.class, UserResponse.class);
         modelMapper.createTypeMap(Notification.class, NotificationResponse.class);

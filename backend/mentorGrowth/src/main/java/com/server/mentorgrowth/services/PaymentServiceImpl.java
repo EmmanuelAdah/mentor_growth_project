@@ -76,11 +76,10 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("Payment initiated via reference: {}", payment.getReference());
 
         paymentRepository.save(payment);
-        InitiatePaymentResponse initiatePaymentResponse = new InitiatePaymentResponse();
-        initiatePaymentResponse.setAuthorizationUrl(response.get("authorizationUrl").toString());
-        initiatePaymentResponse.setReference(response.get("reference").toString());
+        String authUrl = response.get("authorizationUrl").toString();
+        String reference = response.get("reference").toString();
 
-        return initiatePaymentResponse;
+        return new InitiatePaymentResponse(authUrl, reference);
     }
 
     @Override

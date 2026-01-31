@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "notifications")
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

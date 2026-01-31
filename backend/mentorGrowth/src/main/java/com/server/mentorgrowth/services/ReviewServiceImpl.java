@@ -79,9 +79,6 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteByUserId(String id) {
-        if(!reviewRepository.existsById(id))
-            throw new InvalidUserIdentityException("User not found with this ID: " + id);
-
         long deletedItems = reviewRepository.deleteByUserId(id);
         if (deletedItems < 1)
             throw new NoReviewFoundException("No review found with the given ID: " + id);
