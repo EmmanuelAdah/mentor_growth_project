@@ -2,7 +2,6 @@ package com.server.mentorgrowth.services;
 
 import com.server.mentorgrowth.dtos.requests.ReviewRequest;
 import com.server.mentorgrowth.dtos.response.ReviewResponse;
-import com.server.mentorgrowth.exceptions.InvalidUserIdentityException;
 import com.server.mentorgrowth.exceptions.NoReviewFoundException;
 import com.server.mentorgrowth.exceptions.UserNotFoundException;
 import com.server.mentorgrowth.models.Review;
