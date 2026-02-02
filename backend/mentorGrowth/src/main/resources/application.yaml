@@ -41,7 +41,7 @@ spring:
       max-request-size: 10MB
 
 Paystack:
-  apiKey: ${SECRET_KEY}
+  apiKey: ${PAYSTACK_SECRET}
   uri: ${PAYSTACK_BASE_URI}
 
 jwt:

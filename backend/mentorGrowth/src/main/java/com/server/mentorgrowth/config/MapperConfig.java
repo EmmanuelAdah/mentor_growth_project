@@ -25,10 +25,10 @@ public class MapperConfig {
         modelMapper.createTypeMap(Notification.class, NotificationResponse.class);
         modelMapper.createTypeMap(Session.class, SessionResponse.class);
         modelMapper.createTypeMap(Review.class, ReviewResponse.class);
-        modelMapper.createTypeMap(Mentorship.class, MentorshipResponse.class);
-        modelMapper.createTypeMap(UserResponse.class, User.class);
         modelMapper.createTypeMap(Mentee.class, User.class);
         modelMapper.createTypeMap(Mentor.class, User.class);
+        modelMapper.createTypeMap(Mentorship.class, MentorshipResponse.class);
+        modelMapper.createTypeMap(UserResponse.class, User.class);
 
         modelMapper.typeMap(Payment.class, PaymentResponse.class)
                 .addMappings(mapper -> {
@@ -36,6 +36,11 @@ public class MapperConfig {
                             PaymentResponse::setUserId);
                     mapper.map(payment -> payment.getMentor() != null ? payment.getMentor().getId() : null,
                             PaymentResponse::setMentorId);
+                });
+        modelMapper.createTypeMap(Goal.class, GoalResponse.class)
+                .addMappings(mapper -> {
+                    mapper.map(goal -> goal.getMentorship() != null ? goal.getMentorship().getId() : null,
+                            GoalResponse::setMentorshipId);
                 });
 
         return modelMapper;
