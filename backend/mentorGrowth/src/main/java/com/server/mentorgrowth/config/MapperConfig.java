@@ -38,10 +38,10 @@ public class MapperConfig {
                             PaymentResponse::setMentorId);
                 });
         modelMapper.createTypeMap(Goal.class, GoalResponse.class)
-                .addMappings(mapper -> {
-                    mapper.map(goal -> goal.getMentorship() != null ? goal.getMentorship().getId() : null,
-                            GoalResponse::setMentorshipId);
-                });
+                .addMappings(mapper -> mapper.map(goal -> goal.getMentorship() != null
+                                ? goal.getMentorship().getId()
+                                : null,
+                        GoalResponse::setMentorshipId));
 
         return modelMapper;
     }
