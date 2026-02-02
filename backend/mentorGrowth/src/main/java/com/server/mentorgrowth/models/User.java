@@ -1,5 +1,6 @@
 package com.server.mentorgrowth.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -30,6 +31,7 @@ public class User implements UserDetails {
     private int age;
     private String email;
 
+    @JsonIgnore
     @Enumerated(EnumType.STRING)
     private Role role;
 
