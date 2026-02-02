@@ -46,6 +46,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     }
 
     public @Nullable Mentorship createMentorshipGoals(List<Goal> goals) {
+        System.out.println(goals);
         return null;
     }
 }
