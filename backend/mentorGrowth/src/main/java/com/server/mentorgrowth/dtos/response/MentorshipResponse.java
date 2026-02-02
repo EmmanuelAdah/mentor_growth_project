@@ -1,8 +1,6 @@
 package com.server.mentorgrowth.dtos.response;
 
-import com.server.mentorgrowth.models.Goal;
 import com.server.mentorgrowth.models.MentorshipStatus;
-import com.server.mentorgrowth.models.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,9 +14,9 @@ import java.util.List;
 @NoArgsConstructor
 public class MentorshipResponse {
     private String id;
-    private User mentee;
-    private User mentor;
-    private List<Goal> goals;
+    private UserResponse mentee;
+    private UserResponse mentor;
+    private List<GoalResponse> goals;
     private MentorshipStatus status;
     private LocalDateTime createdAt;
 }

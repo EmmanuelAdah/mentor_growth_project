@@ -1,6 +1,7 @@
 package com.server.mentorgrowth.controllers;
 
 import com.server.mentorgrowth.dtos.requests.MentorshipRequest;
+import com.server.mentorgrowth.dtos.response.MentorshipResponse;
 import com.server.mentorgrowth.models.Goal;
 import com.server.mentorgrowth.models.Mentorship;
 import com.server.mentorgrowth.services.MentorshipServiceImpl;
@@ -17,7 +18,7 @@ public class MentorshipController {
     private final MentorshipServiceImpl mentorshipService;
 
     @PostMapping("/create")
-    public ResponseEntity<Mentorship> createMentroship(@RequestBody MentorshipRequest request) {
+    public ResponseEntity<MentorshipResponse> createMentroship(@RequestBody MentorshipRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(mentorshipService.createMentorship(request));
     }
 
