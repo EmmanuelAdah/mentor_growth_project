@@ -1,28 +1,31 @@
-# ---------- Build stage ----------
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+# Multi-stage build for smaller image size
+
+# Stage 1: Build the application
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+
 WORKDIR /app
 
-# Copy pom first to leverage Docker cache
+# Copy pom.xml and download dependencies (cached layer)
 COPY pom.xml .
-RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline -B
 
-# Copy source and build
+# Copy source code and build
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# ---------- Runtime stage ----------
-FROM eclipse-temurin:21-jre-alpine
+# Stage 2: Run the application
+FROM eclipse-temurin:17-jre-jammy
+
 WORKDIR /app
 
-# Create non-root user (security best practice)
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring
-
-# Copy jar from build stage
+# Copy the JAR from build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose app port
+# Expose port
 EXPOSE 8080
 
-# JVM tuning for containers
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]
+# Set environment variables (can be overridden by docker-compose)
+ENV SPRING_PROFILES_ACTIVE=prod
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
