@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -51,6 +52,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public InitiatePaymentResponse createPayment(PaymentRequest request) {
+        log.info("Initiating payment for mentee: {} and mentor: {}", request.getUserId(), request.getMentorId());
         UserResponse savedMentee = userService.findById(request.getUserId());
         UserResponse savedMentor = userService.findById(request.getMentorId());
 
@@ -72,7 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
         User mentee = modelMapper.map(Objects.requireNonNull(savedMentee), User.class);
         User mentor = modelMapper.map(Objects.requireNonNull(savedMentor), User.class);
 
-        Payment payment = mapPayment((Mentor) mentor, (Mentee) mentee, request, response);
+        Payment payment = mapPayment(mentor, mentee, request, response);
         log.info("Payment initiated via reference: {}", payment.getReference());
 
         paymentRepository.save(payment);

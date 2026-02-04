@@ -19,12 +19,12 @@ public class PaymentController {
 
     @PostMapping("/create")
     public ResponseEntity<InitiatePaymentResponse> createPayment(@RequestBody PaymentRequest paymentRequest) {
-        return new ResponseEntity<>(paymentService.createPayment(paymentRequest), HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPayment(paymentRequest));
     }
 
     @PatchMapping("/verify")
     public ResponseEntity<PaymentResponse> verifyPayment(@RequestBody VerifyPaymentRequest request) {
-        return new ResponseEntity<>(paymentService.verifyPayment(request), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(paymentService.verifyPayment(request));
     }
 
     @GetMapping("/id")

@@ -25,10 +25,13 @@ public class MapperConfig {
         modelMapper.createTypeMap(Notification.class, NotificationResponse.class);
         modelMapper.createTypeMap(Session.class, SessionResponse.class);
         modelMapper.createTypeMap(Review.class, ReviewResponse.class);
-        modelMapper.createTypeMap(Mentee.class, User.class);
-        modelMapper.createTypeMap(Mentor.class, User.class);
         modelMapper.createTypeMap(Mentorship.class, MentorshipResponse.class);
         modelMapper.createTypeMap(UserResponse.class, User.class);
+
+        modelMapper.createTypeMap(Mentee.class, User.class)
+                .addMappings(mapper -> mapper.skip(User::setPassword));
+        modelMapper.createTypeMap(Mentor.class, User.class)
+                .addMappings(mapper -> mapper.skip(User::setPassword));
 
         modelMapper.typeMap(Payment.class, PaymentResponse.class)
                 .addMappings(mapper -> {

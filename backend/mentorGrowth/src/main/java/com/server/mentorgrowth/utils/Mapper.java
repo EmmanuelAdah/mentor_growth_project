@@ -42,8 +42,8 @@ public class Mapper {
                 .build();
     }
 
-    public static Payment mapPayment(Mentor mentor,
-                              Mentee mentee,
+    public static Payment mapPayment(User mentor,
+                              User mentee,
                               PaymentRequest request,
                               Map<String, Object> map){
 

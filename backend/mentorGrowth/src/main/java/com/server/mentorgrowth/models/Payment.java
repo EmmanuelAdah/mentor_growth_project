@@ -17,11 +17,11 @@ public class Payment {
 
     @JoinColumn(name = "mentee_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Mentee mentee;
+    private User mentee;
 
     @JoinColumn(name = "mentor_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Mentor mentor;
+    private User mentor;
 
     private double amount;
     private String currency;
