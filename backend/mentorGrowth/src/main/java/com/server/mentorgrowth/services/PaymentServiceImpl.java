@@ -19,7 +19,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
