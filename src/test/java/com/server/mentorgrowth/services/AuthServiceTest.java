@@ -54,11 +54,11 @@ class AuthServiceTest {
     }
 
     @Test
-    void saveUser_shouldRegisterUserSuccessfully() {
+    public void saveUser_shouldRegisterUserSuccessfully() {
         RegisterRequest request = new RegisterRequest();
         request.setFirstName("Adah");
         request.setLastName("Smith");
-        request.setRole("ROLE_MENTOR");
+        request.setRole("MENTOR");
         request.setEmail("test@example.com");
         request.setPassword("password");
 

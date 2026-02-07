@@ -1,107 +1,45 @@
-#version: '3.8'
-#
-#services:
-#  # PostgreSQL Database
-#  postgres:
-#    image: postgres:16-alpine
-#    container_name: mentorgrowth-db
-#    restart: unless-stopped
-#    environment:
-#      POSTGRES_DB: mentorgrowth
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: postgres123
-#    ports:
-#      - "5432:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#    networks:
-#      - mentorgrowth-network
-#    healthcheck:
-#      test: ["CMD-SHELL", "pg_isready -U postgres"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-#
-#  # RabbitMQ (for your AMQP needs)
-#  rabbitmq:
-#    image: rabbitmq:3.13-management-alpine
-#    container_name: mentorgrowth-rabbitmq
-#    restart: unless-stopped
-#    environment:
-#      RABBITMQ_DEFAULT_USER: admin
-#      RABBITMQ_DEFAULT_PASS: admin123
-#    ports:
-#      - "5672:5672"   # AMQP port
-#      - "15672:15672" # Management UI
-#    volumes:
-#      - rabbitmq_data:/var/lib/rabbitmq
-#    networks:
-#      - mentorgrowth-network
-#    healthcheck:
-#      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-#
-#  # Your Spring Boot Application
-#  app:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: mentorgrowth-app
-#    restart: unless-stopped
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      rabbitmq:
-#        condition: service_healthy
-#    environment:
-#      # Database Configuration
-#      SPRING_DATASOURCE_URL: ${DATASOURCE_URL}
-#      SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME}
-#      SPRING_DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD}
-#
-#      # RabbitMQ Configuration
-#      SPRING_RABBITMQ_HOST: localhost
-#      SPRING_RABBITMQ_PORT: 5672
-#      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
-#      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-#
-#      # JPA/Hibernate
-#      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-#      SPRING_JPA_SHOW_SQL: "false"
-#
-#      # Application Profile
-#      SPRING_PROFILES_ACTIVE: docker
-#
-#      # JWT Secret (use a strong secret in production!)
-#      JWT_SECRET: ${}
-#
-#      # Stripe API Key (use environment variable or secrets manager)
-#      STRIPE_API_KEY: ${STRIPE_API_KEY}
-#
-#      # Google OAuth
-#      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-#      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-#
-#      # Cloudinary
-#      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
-#      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
-#      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
-#    ports:
-#      - "8080:8080"
-#    networks:
-#      - mentorgrowth-network
-#    volumes:
-#      - app_logs:/app/logs
-#
-## Define networks
-#networks:
-#  mentorgrowth-network:
-#    driver: bridge
-#
-## Define volumes for data persistence
-#volumes:
-#  postgres_data:
-#  rabbitmq_data:
-#  app_logs:
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      # RabbitMQ
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+
+      # Database (if external or later added)
+      SPRING_DATASOURCE_URL: ${DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD}
+
+      # Secrets
+      JWT_SECRET: ${JWT_SECRET}
+      STRIPE_API_KEY: ${STRIPE_API_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+
+volumes:
+  rabbitmq_data:

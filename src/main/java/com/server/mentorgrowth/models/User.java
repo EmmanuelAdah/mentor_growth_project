@@ -42,6 +42,9 @@ public class User implements UserDetails {
     private String profileImage;
     private String password;
 
+    @Column(name = "is_approved", nullable = false)
+    private Boolean isApproved = false;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

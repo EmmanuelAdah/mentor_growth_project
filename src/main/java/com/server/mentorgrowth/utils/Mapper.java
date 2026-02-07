@@ -18,7 +18,7 @@ public class Mapper {
                 .toUpperCase().trim());
         user.setEmail(request.getEmail());
         try {
-            user.setRole(Role.valueOf(request.getRole()
+            user.setRole(Role.valueOf("ROLE_" + request.getRole()
                     .toUpperCase()));
         } catch (IllegalArgumentException e) {
             throw new InvalidRoleException("Invalid role");

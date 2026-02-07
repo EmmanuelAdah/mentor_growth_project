@@ -7,6 +7,7 @@ import com.server.mentorgrowth.exceptions.ServerConnectionException;
 import com.server.mentorgrowth.services.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -22,7 +23,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<UserAuthResponse> createUser(@RequestBody RegisterRequest request){
-        return ResponseEntity.ok(authService.saveUser(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.saveUser(request));
     }
 
     @PostMapping("/login")

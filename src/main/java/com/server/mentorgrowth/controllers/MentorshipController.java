@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/mentorship")
+@RequestMapping("/api/v1/mentorship")
 @RequiredArgsConstructor
 public class MentorshipController {
     private final MentorshipServiceImpl mentorshipService;
 
     @PostMapping("/create")
-    public ResponseEntity<MentorshipResponse> createMentroship(@RequestBody MentorshipRequest request) {
+    public ResponseEntity<MentorshipResponse> createMentorship(@RequestBody MentorshipRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(mentorshipService.createMentorship(request));
     }
 

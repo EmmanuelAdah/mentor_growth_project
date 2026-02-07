@@ -17,9 +17,9 @@ spring:
 
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mentor_growth
+    url: jdbc:postgresql://localhost:5432/mentor_growth_db
     username: postgres
-    password: Emma007.
+    password: Emma007_
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -55,7 +55,7 @@ Cloudinary:
 
 rabbitmq:
   exchange:
-    name: mentorship-exchange
+    name: mentorship_exchange
   queue:
     name: mentorship_queue
   routing:

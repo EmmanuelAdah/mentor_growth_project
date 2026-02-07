@@ -12,10 +12,9 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 public class Mentor extends User {
     private String rating;
-    private double pricing;
 
     @Column(nullable = false)
-    private boolean isApproved = false;
+    private double pricing = 0.0;
 
     private BigDecimal earnings;
 }

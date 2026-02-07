@@ -13,6 +13,8 @@ import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Locale;
 import java.util.Objects;
 import static com.server.mentorgrowth.utils.Mapper.map;
 
@@ -48,8 +50,12 @@ public class AuthService {
 
     private UserAuthResponse response(User user, String token) {
         return UserAuthResponse.builder()
-                .token(token)
                 .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getFirstName() + " " + user.getLastName())
+                .role(user.getRole().name()
+                        .split("_")[1])
+                .token(token)
                 .build();
     }
 
