@@ -5,9 +5,7 @@ import com.server.mentorgrowth.dtos.response.ReviewResponse;
 import com.server.mentorgrowth.services.ReviewServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController

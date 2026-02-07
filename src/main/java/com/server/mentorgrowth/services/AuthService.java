@@ -13,8 +13,6 @@ import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Locale;
 import java.util.Objects;
 import static com.server.mentorgrowth.utils.Mapper.map;
 
