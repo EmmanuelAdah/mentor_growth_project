@@ -30,5 +30,23 @@ spring:
     port: 5672
     host: localhost
 
+rabbitmq:
+  exchange:
+    name: ${RABBITMQ_EXCHANGE}
+  queue:
+    name: ${RABBITMQ_QUEUE}
+  routing:
+    key: ${RABBITMQ_ROUTING_KEY}
+
+
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
+
+Cloudinary:
+  cloud-name: ${CLOUDINARY_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+
 google:
   credentials: ${GOOGLE_APPLICATION_CREDENTIALS}
