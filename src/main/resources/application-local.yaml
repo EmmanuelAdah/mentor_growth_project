@@ -47,6 +47,14 @@ Paystack:
   apiKey: ${SECRET_KEY}
   uri: ${PAYSTACK_BASE_URI}
 
+rabbitmq:
+  exchange:
+    name: ${RABBITMQ_EXCHANGE}
+  queue:
+    name: ${RABBITMQ_QUEUE}
+  routing:
+    key: ${RABBITMQ_ROUTING_KEY}
+
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}

@@ -55,11 +55,11 @@ Cloudinary:
 
 rabbitmq:
   exchange:
-    name: mentorship_exchange
+    name: ${RABBITMQ_EXCHANGE}
   queue:
-    name: mentorship_queue
+    name: ${RABBITMQ_QUEUE}
   routing:
-    key: mentorship_routing_key
+    key: ${RABBITMQ_ROUTING_KEY}
 
 google:
   credentials:
