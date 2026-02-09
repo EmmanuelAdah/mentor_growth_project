@@ -10,21 +10,19 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalErrorHandler {
 
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidCredentialsException(InvalidCredentialsException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
-    }
-
     @ExceptionHandler(IncompleteTransactionException.class)
     public Map<String, Object> handleIncompleteTransactionException(IncompleteTransactionException ex) {
         return Map.of("message", ex.getMessage());
     }
 
     @ExceptionHandler({
+            UserNotFoundException.class,
             InvalidPaymentReferenceException.class,
             InvalidEmailFormatException.class,
             InvalidUserIdentityException.class,
-            InvalidPaymentIdentityException.class
+            InvalidPaymentIdentityException.class,
+            InvalidPasswordLengthException.class,
+            InvalidCredentialsException.class
     })
     public ResponseEntity<Map<String, Object>> handleInvalidPaymentReferenceException(RuntimeException ex) {
         return ResponseEntity
@@ -50,7 +48,6 @@ public class GlobalErrorHandler {
     }
 
     @ExceptionHandler({
-            UserNotFoundException.class,
             NotificationNotFoundException.class,
             NoReviewFoundException.class,
             MentorshipNotFoundException.class,

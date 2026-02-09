@@ -4,7 +4,7 @@ spring:
       on-profile: prod
 
   datasource:
-    url: ${DATABASE_URL}
+    url: jdbc:postgresql://${DATASOURCE_HOST}.virginia-postgres.render.com:${DATASOURCE_PORT}/${DATASOURCE_NAME}?sslmode=require
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver

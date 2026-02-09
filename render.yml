@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: ${APP_NAME}
+    env: java
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/*.jar --server.port=${PORT}
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: ${DATASOURCE_NAME} # This must match the 'name' in the databases section below
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: ${DATASOURCE_NAME}
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: ${DATASOURCE_NAME}
+          property: password
+
+# This section actually creates the database on Render
+databases:
+  - name: ${DATASOURCE_NAME}
+    databaseName: ${DATASOURCE_NAME} # The actual name inside Postgres
+    user: mentorship_user
+    plan: free
