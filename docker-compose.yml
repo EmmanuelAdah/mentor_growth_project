@@ -1,60 +1,108 @@
-version: "3.8"
+
+version: '3.8'
 
 services:
-  pdb:
-    image: postgres:18-alpine
-    container_name: postgres
-    environment:
-      - POSTGRES_PORT=${DATASOURCE_PORT}
-      - POSTGRES_URL=${DATASOURCE_URL}
-      - POSTGRES_USER=${DATASOURCE_USERNAME}
-      - POSTGRES_PASSWORD=${DATASOURCE_PASSWORD}
-      - POSTGRES_DB=${DATASOURCE_NAME}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  # PostgreSQL Database
+#  postgres:
+#    image: postgres:18-alpine
+#    container_name: mentorgrowth-db
+#    restart: unless-stopped
+#    environment:
+#      POSTGRES_DB: mentorgrowth
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres123
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - mentorgrowth-network
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U postgres"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
 
-
+  # RabbitMQ (for your AMQP needs)
   rabbitmq:
     image: rabbitmq:management
+    container_name: rabbitmq
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - mentorgrowth-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # Your Spring Boot Application
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mentorgrowth-app
     restart: unless-stopped
-    ports:
-      - "8089:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+#      Database Configuration
+#      SPRING_DATASOURCE_URL: ${DATASOURCE_URL}
+#      SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME}
+#      SPRING_DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD}
 
-      # RabbitMQ
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
+      # RabbitMQ Configuration
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT}
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
-      # Database (if external or later added)
-      SPRING_DATASOURCE_URL: ${DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD}
+      # JPA/Hibernate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "false"
 
-      # Secrets
-      JWT_SECRET: ${JWT_SECRET}
-      STRIPE_API_KEY: ${STRIPE_API_KEY}
+      # Application Profile
+      SPRING_PROFILES_ACTIVE: docker
+
+      # JWT Secret (use a strong secret in production!)
+      JWT_SECRET: ${JWT_SECRET_KEY}
+
+      # Stripe API Key (use environment variable or secrets manager)
+#      STRIPE_API_KEY: ${STRIPE_API_KEY}
+
+      # Google OAuth
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+
+      # Cloudinary
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+    ports:
+      - "8080:8080"
+    networks:
+      - mentorgrowth-network
+    volumes:
+      - app_logs:/app/logs
 
+# Define networks
+networks:
+  mentorgrowth-network:
+    driver: bridge
+
+# Define volumes for data persistence
 volumes:
+  postgres_data:
   rabbitmq_data:
+  app_logs:
