@@ -5,9 +5,9 @@ spring:
       on-profile: local
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mentor_growth
-    username: postgres
-    password: Emma007.
+    url: ${LOCAL_DB_URL}
+    username: ${LOCAL_DB_USERNAME}
+    password: ${LOCAL_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
