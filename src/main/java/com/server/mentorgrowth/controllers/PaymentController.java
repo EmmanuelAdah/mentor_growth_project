@@ -22,7 +22,7 @@ public class PaymentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPayment(paymentRequest));
     }
 
-    @PatchMapping("/verify")
+    @PutMapping("/verify")
     public ResponseEntity<PaymentResponse> verifyPayment(@RequestBody VerifyPaymentRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(paymentService.verifyPayment(request));
     }
@@ -32,8 +32,8 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.findById(id));
     }
 
-    @GetMapping("/user/id")
-    public ResponseEntity<List<PaymentResponse>> findByUserId(@RequestParam String userId) {
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PaymentResponse>> findByUserId(@PathVariable String userId) {
         return ResponseEntity.ok(paymentService.findByUserId(userId));
     }
 

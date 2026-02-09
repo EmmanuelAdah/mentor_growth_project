@@ -1,9 +1,9 @@
 package com.server.mentorgrowth.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -12,11 +12,15 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 public class Mentor extends User {
     private String rating;
-    private double pricing;
 
-    @Column(nullable = false)
-    private boolean isApproved = false;
+    @ElementCollection
+    @CollectionTable(
+            name = "mentor_services",
+            joinColumns = @JoinColumn(name = "mentor_id")
+    )
+    private List<Service> services;
 
+    @Column(precision = 10, scale = 2)
     private BigDecimal earnings;
 }
 

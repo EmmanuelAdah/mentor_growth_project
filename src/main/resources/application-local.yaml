@@ -1,3 +1,5 @@
+server:
+  port: 8089
 
 spring:
   config:
@@ -5,10 +7,12 @@ spring:
       on-profile: local
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mentor_growth
-    username: postgres
-    password: Emma007.
+    url: ${LOCAL_DB_URL}
+    username: ${LOCAL_DB_USERNAME}
+    password: ${LOCAL_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
+
 
   jpa:
     hibernate:
@@ -33,8 +37,11 @@ spring:
   rabbitmq:
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
-    port: 5672
-    host: localhost
+    port: ${RABBITMQ_PORT}
+    host: ${RABBITMQ_HOST}
+
+  profiles:
+    active: local
 
 Paystack:
   apiKey: ${SECRET_KEY}

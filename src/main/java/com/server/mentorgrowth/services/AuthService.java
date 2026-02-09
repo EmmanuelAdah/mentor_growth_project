@@ -4,6 +4,7 @@ import com.server.mentorgrowth.dtos.requests.LoginRequest;
 import com.server.mentorgrowth.dtos.requests.RegisterRequest;
 import com.server.mentorgrowth.dtos.response.UserAuthResponse;
 import com.server.mentorgrowth.exceptions.InvalidCredentialsException;
+import com.server.mentorgrowth.exceptions.InvalidPasswordLengthException;
 import com.server.mentorgrowth.exceptions.UserAlreadyExistException;
 import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.UserRepository;
@@ -27,6 +28,10 @@ public class AuthService {
     private final ModelMapper modelMapper;
 
     public UserAuthResponse saveUser(RegisterRequest request){
+        String password = request.getPassword();
+        if (password.length() < 6 || password.length() > 20){
+            throw new InvalidPasswordLengthException("Password must be between 6 to 20 characters long");
+        }
         request.setPassword(Objects.requireNonNull(passwordEncoder.encode(request.getPassword())));
 
         if(userRepository.existsByEmail(request.getEmail())){
@@ -48,8 +53,13 @@ public class AuthService {
 
     private UserAuthResponse response(User user, String token) {
         return UserAuthResponse.builder()
-                .token(token)
                 .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getFirstName() + " " + user.getLastName())
+                .role(user.getRole().name()
+                        .split("_")[1]
+                        .toLowerCase())
+                .token(token)
                 .build();
     }
 

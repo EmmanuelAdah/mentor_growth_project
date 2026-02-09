@@ -4,10 +4,12 @@ spring:
       on-profile: prod
 
   datasource:
-    url: ${DATABASE_URL}
+    url: jdbc:postgresql://${DATASOURCE_HOST}.virginia-postgres.render.com:${DATASOURCE_PORT}/${DATASOURCE_NAME}?sslmode=require
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
 
   jpa:
     hibernate:
@@ -27,8 +29,17 @@ spring:
   rabbitmq:
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
-    port: 5672
-    host: localhost
+    port: ${RABBITMQ_PORT}
+    host: ${RABBITMQ_HOST}
+
+Paystack:
+  apiKey: ${SECRET_KEY}
+  uri: ${PAYSTACK_BASE_URI}
+
+Cloudinary:
+  cloud-name: ${CLOUDINARY_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
 
 google:
   credentials: ${GOOGLE_APPLICATION_CREDENTIALS}

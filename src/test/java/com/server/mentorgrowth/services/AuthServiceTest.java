@@ -54,11 +54,11 @@ class AuthServiceTest {
     }
 
     @Test
-    void saveUser_shouldRegisterUserSuccessfully() {
+    public void saveUser_shouldRegisterUserSuccessfully() {
         RegisterRequest request = new RegisterRequest();
         request.setFirstName("Adah");
         request.setLastName("Smith");
-        request.setRole("ROLE_MENTOR");
+        request.setRole("MENTOR");
         request.setEmail("test@example.com");
         request.setPassword("password");
 
@@ -135,6 +135,7 @@ class AuthServiceTest {
 
         UserAuthResponse expectedResponse = UserAuthResponse.builder()
                 .id(savedUser.getId())
+                .email(savedUser.getEmail())
                 .build();
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
@@ -146,6 +147,7 @@ class AuthServiceTest {
 
         assertNotNull(response);
         assertEquals("25e6f3e4-8afb-4469-8917-fedbdb5bad18", response.id());
+        assertEquals("google@example.com", response.email());
 
         verify(userRepository).save(any(User.class));
     }
