@@ -6,7 +6,6 @@ import com.server.mentorgrowth.services.ReviewServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -25,8 +24,8 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.findAll());
     }
 
-    @GetMapping("/user")
-    public ResponseEntity<ReviewResponse> findById(@RequestParam String id) {
+    @GetMapping("/find/{id}")
+    public ResponseEntity<ReviewResponse> findById(@PathVariable String id) {
         return ResponseEntity.ok(reviewService.findById(id));
     }
 
