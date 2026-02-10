@@ -4,9 +4,9 @@ spring:
       on-profile: prod
 
   datasource:
-    url: ${DATABASE_URL}:${DATASOURCE_PORT}/${DATASOURCE_NAME}?sslmode=require
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
+    url: ${DATASOURCE_URL}:${DATASOURCE_PORT}/${DATASOURCE_NAME}?sslmode=require
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:

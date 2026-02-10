@@ -79,4 +79,15 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
     }
+
+    @ManyToOne(optional = false)
+    private Service services;
+
+    public Service getServices() {
+        return services;
+    }
+
+    public void setServices(Service services) {
+        this.services = services;
+    }
 }
