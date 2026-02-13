@@ -8,27 +8,35 @@ import com.server.mentorgrowth.exceptions.UserNotFoundException;
 import com.server.mentorgrowth.models.Notification;
 import com.server.mentorgrowth.repositories.NotificationRepository;
 import com.server.mentorgrowth.services.interfaces.NotificationService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Objects;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
     private final ModelMapper modelMapper;
     private final UserServiceImpl userServiceImpl;
     private final NotificationRepository notificationRepository;
+    private final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
+
+    public NotificationServiceImpl(
+            ModelMapper modelMapper,
+            UserServiceImpl userService,
+            NotificationRepository repository
+    ){
+        this.modelMapper = modelMapper;
+        this.notificationRepository = repository;
+        this.userServiceImpl = userService;
+    }
 
     @RabbitListener(queues = "${rabbitmq.queue.name}")
     public void notifyUser(NotificationRequest request) {
-        log.info("Received notification request: {}", request);
+        logger.info("Received notification request: {}", request);
         Boolean isExistingUser = userServiceImpl.existById(request.getUserId());
         if (!isExistingUser) {
             throw new UserNotFoundException("User not found with id: " + request.getUserId());
@@ -39,12 +47,12 @@ public class NotificationServiceImpl implements NotificationService {
                                                 .message(request.getMessage())
                                                 .build();
         Notification savedNotification = notificationRepository.save(notification);
-        log.info("Notification for user: {}", savedNotification.getUserId());
+        logger.info("Notification saved for user: {}", savedNotification.getUserId());
     }
 
     @Override
     public @Nullable List<NotificationResponse> findByUserId(String userId) {
-        log.info("Finding notifications by user id {}", userId);
+        logger.info("Finding notifications by user id {}", userId);
         return Objects.requireNonNull(notificationRepository.findByUserId(userId))
                 .stream()
                 .map(notification -> modelMapper.map(notification, NotificationResponse.class))
@@ -71,7 +79,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void deleteByUserId(String userId) {
         try {
             notificationRepository.deleteByUserId(userId);
-            log.info("Deleting notifications by user id {}", userId);
+            logger.info("Deleting notifications by user id {}", userId);
         } catch (Exception e) {
             throw new DeleteNotificationException("Notification not deleted successfully");
         }
