@@ -21,12 +21,16 @@ public class MapperConfig {
                 .setFieldMatchingEnabled(true)
                 .setFieldAccessLevel(AccessLevel.PRIVATE);
 
-        modelMapper.typeMap(User.class, UserResponse.class);
         modelMapper.createTypeMap(Notification.class, NotificationResponse.class);
         modelMapper.createTypeMap(Session.class, SessionResponse.class);
         modelMapper.createTypeMap(Review.class, ReviewResponse.class);
         modelMapper.createTypeMap(Mentorship.class, MentorshipResponse.class);
         modelMapper.createTypeMap(UserResponse.class, User.class);
+
+        modelMapper.typeMap(User.class, UserResponse.class)
+                        .addMappings(mapper -> {
+                            mapper.map(user -> user.getRole().name().toLowerCase(), UserResponse::setRole);
+                        });
 
         modelMapper.createTypeMap(Mentee.class, User.class)
                 .addMappings(mapper -> mapper.skip(User::setPassword));

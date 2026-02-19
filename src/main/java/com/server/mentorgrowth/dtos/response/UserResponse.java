@@ -16,6 +16,7 @@ public class UserResponse {
     private String lastName;
     private String email;
     private int age;
+    private String role;
     private String bio;
     private String phoneNumber;
     private String profession;
