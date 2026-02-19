@@ -17,8 +17,6 @@ public class Review {
 
     private String userId;
     private String mentorId;
-
-
     private String comment;
 
     @CreationTimestamp
