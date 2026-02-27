@@ -28,9 +28,7 @@ public class MapperConfig {
         modelMapper.createTypeMap(UserResponse.class, User.class);
 
         modelMapper.typeMap(User.class, UserResponse.class)
-                        .addMappings(mapper -> {
-                            mapper.map(user -> user.getRole().name().toLowerCase(), UserResponse::setRole);
-                        });
+                        .addMappings(mapper -> mapper.map(user -> user.getRole().name().toLowerCase(), UserResponse::setRole));
 
         modelMapper.createTypeMap(Mentee.class, User.class)
                 .addMappings(mapper -> mapper.skip(User::setPassword));
