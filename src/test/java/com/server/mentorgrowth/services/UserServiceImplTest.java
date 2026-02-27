@@ -208,7 +208,9 @@ class UserServiceImplTest {
         user.setId(userId);
 
         Map<String, Object> uploadResult = Map.of("secure_url", "https://cloudinary.com/photo.jpg");
+
         UserResponse expectedResponse = new UserResponse();
+        expectedResponse.setId(userId);
         expectedResponse.setProfileImage("https://cloudinary.com/photo.jpg");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
