@@ -1,21 +1,15 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: mentorship-ci
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    types: [ closed ] # Trigger when a PR is closed
 
 jobs:
   build:
+    # This 'if' ensures the job ONLY runs if the PR was merged, 
+    # not just closed/cancelled.
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -29,4 +23,3 @@ jobs:
         
     - name: Build with Maven
       run: mvn clean package
-
