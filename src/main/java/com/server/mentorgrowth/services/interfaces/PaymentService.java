@@ -4,6 +4,8 @@ import com.server.mentorgrowth.dtos.requests.PaymentRequest;
 import com.server.mentorgrowth.dtos.requests.VerifyPaymentRequest;
 import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
+import com.server.mentorgrowth.models.Payment;
+
 import java.util.List;
 
 public interface PaymentService {
@@ -14,4 +16,5 @@ public interface PaymentService {
     PaymentResponse findByReference(String reference);
     List<PaymentResponse> findByUserId(String userId);
     List<PaymentResponse> findAll();
+    byte[] generatePaymentReceipt(Payment payment);
 }

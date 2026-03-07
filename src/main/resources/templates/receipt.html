@@ -46,7 +46,7 @@
         .amount-value { font-size: 28px; font-weight: 800; color: #000; }
         .footer {
             margin-top: 30px;
-            font-size: 11px;
+            font-size: 13px;
             text-align: center;
             color: #999;
             line-height: 1.5;
@@ -65,27 +65,27 @@
     <div class="amount-section">
         <div class="label" style="margin-bottom: 5px;">Amount Paid</div>
         <!--/*@thymesVar id="transaction" type=""*/-->
-        <div class="amount-value" th:text="'₦' + ${transaction.amount}">₦5,000.00</div>
+        <div class="amount-value" th:text="'₦' + ${payment.amount}">NGN 5,000.00</div>
     </div>
 
     <div class="detail-row">
         <span class="label">Reference</span>
-        <span class="value" th:text="${transaction.reference}">TXN-88291022</span>
+        <span class="value" th:text="${payment.reference}">TXN-88291022</span>
     </div>
 
     <div class="detail-row">
         <span class="label">Date & Time</span>
-        <span class="value" th:text="${transaction.createdAt}">March 7, 2026 12:42 PM</span>
+        <span class="value" th:text="${payment.createdAt}">March 7, 2026 12:42 PM</span>
     </div>
 
-    <div class="detail-row">
+    <div class="detail-row" th:with="fullName=${payment.mentee.firstName + ' ' + payment.mentee.lastName}">
         <span class="label">Sender</span>
-        <span class="value" th:text="${transaction.senderName}">Emmanuel Adah</span>
+        <span class="value" th:text="${fullName}">John Doe</span>
     </div>
 
-    <div class="detail-row">
-        <span class="label">Beneficiary</span>
-        <span class="value" th:text="${transaction.receiverName}">Roters Future Tech</span>
+    <div class="detail-row" th:with="fullName=${payment.mentor.firstName + ' ' + payment.mentor.lastName}">
+        <span class="label">Recipient</span>
+        <span class="value" th:text="${fullName}">John Doe</span>
     </div>
 
     <div class="footer">

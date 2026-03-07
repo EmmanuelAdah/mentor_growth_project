@@ -1,6 +1,7 @@
 package com.server.mentorgrowth.services;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import com.server.mentorgrowth.models.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -10,13 +11,12 @@ import java.io.ByteArrayOutputStream;
 @Service
 @RequiredArgsConstructor
 public class PdfGeneratorService {
-
         private final TemplateEngine templateEngine;
 
-        public byte[] generateHtmlPdf(Transaction transaction) {
+        public byte[] generateHtmlPdf(Payment payment) {
             // 1. Prepare data for the HTML template
             Context context = new Context();
-            context.setVariable("transaction", transaction);
+            context.setVariable("payment", payment);
 
             // 2. Render HTML to a String
             String renderedHtml = templateEngine.process("receipt", context);
