@@ -39,6 +39,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserResponse> findAllByIds(List<String> ids) {
+        List<User> users = userRepository.findAllById(ids);
+        if (users.isEmpty())
+            throw new UserNotFoundException("User not found");
+
+        return users.stream()
+                .map(user -> modelMapper.map(user, UserResponse.class))
+                .toList();
+    }
+
+    @Override
     public @Nullable List<UserResponse> findAllUsers() {
         return  userRepository.findAll()
                 .stream()

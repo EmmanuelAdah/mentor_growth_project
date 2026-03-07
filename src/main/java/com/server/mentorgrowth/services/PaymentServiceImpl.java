@@ -6,9 +6,7 @@ import com.server.mentorgrowth.dtos.requests.VerifyPaymentRequest;
 import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
-import com.server.mentorgrowth.exceptions.InvalidPaymentIdentityException;
-import com.server.mentorgrowth.exceptions.InvalidPaymentReferenceException;
-import com.server.mentorgrowth.exceptions.NoPaymentFoundException;
+import com.server.mentorgrowth.exceptions.*;
 import com.server.mentorgrowth.models.*;
 import com.server.mentorgrowth.repositories.PaymentRepository;
 import com.server.mentorgrowth.services.interfaces.PaymentService;
@@ -25,6 +23,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 import static com.server.mentorgrowth.utils.Mapper.mapPayment;
 
 @Slf4j
@@ -36,6 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final RabbitTemplate rabbitTemplate;
     private final ModelMapper modelMapper;
+    private final PdfGeneratorService pdfGeneratorService;
 
     @Value("${Paystack.apiKey}")
     private String secretKey;
@@ -52,8 +52,18 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public InitiatePaymentResponse createPayment(PaymentRequest request) {
         log.info("Initiating payment for mentee: {} and mentor: {}", request.getUserId(), request.getMentorId());
-        UserResponse savedMentee = userService.findById(request.getUserId());
-        UserResponse savedMentor = userService.findById(request.getMentorId());
+        List<String> ids = List.of(request.getUserId(), request.getMentorId());
+        List<UserResponse> users = userService.findAllByIds(ids);
+
+        UserResponse savedMentee = users.stream()
+                .filter(u -> u.getId().equals(request.getUserId()))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException("Mentee not found"));
+
+        UserResponse savedMentor = users.stream()
+                .filter(u -> u.getId().equals(request.getMentorId()))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException("Mentor found"));
 
         Map<String, Object> paymentDetails = Map.of(
                 "email", savedMentee.getEmail(),
@@ -75,10 +85,10 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = mapPayment(mentor, mentee, request, response);
         log.info("Payment initiated via reference: {}", payment.getReference());
+        String reference = response.get("reference").toString();
 
         paymentRepository.save(payment);
         String authUrl = response.get("authorizationUrl").toString();
-        String reference = response.get("reference").toString();
 
         return new InitiatePaymentResponse(authUrl, reference);
     }
@@ -184,5 +194,13 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.findByReference(reference)
                 .map(payment -> modelMapper.map(payment, PaymentResponse.class))
                 .orElseThrow(()-> new InvalidPaymentReferenceException("Invalid Payment Reference: " + reference));
+    }
+
+    @Override
+    public byte[] generatePaymentReceipt(String paymentId, String userId) {
+        Payment payment = paymentRepository.findByIdAndParticipantId(paymentId, userId)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
+
+        return pdfGeneratorService.generateHtmlPdf(payment);
     }
 }

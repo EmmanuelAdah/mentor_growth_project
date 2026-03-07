@@ -30,7 +30,6 @@ public class MentorshipServiceImpl implements MentorshipService {
         UserResponse mentee = userService.findById(request.getUserId());
 
         Mentorship mentorship = new Mentorship();
-
         mentorship.setMentor(modelMapper.map(mentor, User.class));
         mentorship.setMentee(modelMapper.map(mentee, User.class));
 

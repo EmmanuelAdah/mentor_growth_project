@@ -11,6 +11,7 @@ public interface UserService {
     UserResponse findById(String id);
     User findByEmail(String email);
     List<UserResponse> findAllUsers();
+    List<UserResponse> findAllByIds(List<String> ids);
     List<UserResponse> getAllMentors();
     List<UserResponse> getAllMentees();
     UserResponse updateProfilePicture(String id, MultipartFile file);
