@@ -28,6 +28,7 @@ public class AuthService {
     private final ModelMapper modelMapper;
 
     public UserAuthResponse saveUser(RegisterRequest request){
+
         String password = request.getPassword();
         if (password.length() < 6 || password.length() > 20){
             throw new InvalidPasswordLengthException("Password must be between 6 to 20 characters long");

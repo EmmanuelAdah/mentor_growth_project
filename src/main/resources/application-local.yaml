@@ -44,7 +44,7 @@ spring:
     active: local
 
 Paystack:
-  apiKey: ${SECRET_KEY}
+  apiKey: ${PAYSTACK_SECRET_KEY}
   uri: ${PAYSTACK_BASE_URI}
 
 rabbitmq:
