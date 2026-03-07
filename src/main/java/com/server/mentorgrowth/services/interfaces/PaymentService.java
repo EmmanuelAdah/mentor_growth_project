@@ -16,5 +16,5 @@ public interface PaymentService {
     PaymentResponse findByReference(String reference);
     List<PaymentResponse> findByUserId(String userId);
     List<PaymentResponse> findAll();
-    byte[] generatePaymentReceipt(Payment payment);
+    byte[] generatePaymentReceipt(String paymentId, String userId);
 }

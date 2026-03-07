@@ -6,10 +6,7 @@ import com.server.mentorgrowth.dtos.requests.VerifyPaymentRequest;
 import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
-import com.server.mentorgrowth.exceptions.InvalidPaymentIdentityException;
-import com.server.mentorgrowth.exceptions.InvalidPaymentReferenceException;
-import com.server.mentorgrowth.exceptions.NoPaymentFoundException;
-import com.server.mentorgrowth.exceptions.UserNotFoundException;
+import com.server.mentorgrowth.exceptions.*;
 import com.server.mentorgrowth.models.*;
 import com.server.mentorgrowth.repositories.PaymentRepository;
 import com.server.mentorgrowth.services.interfaces.PaymentService;
@@ -26,6 +23,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 import static com.server.mentorgrowth.utils.Mapper.mapPayment;
 
 @Slf4j
@@ -199,7 +197,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public byte[] generatePaymentReceipt(Payment payment) {
+    public byte[] generatePaymentReceipt(String paymentId, String userId) {
+        Payment payment = paymentRepository.findByIdAndParticipantId(paymentId, userId)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
+
         return pdfGeneratorService.generateHtmlPdf(payment);
     }
 }
