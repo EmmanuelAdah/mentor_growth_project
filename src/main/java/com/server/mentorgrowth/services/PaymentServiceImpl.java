@@ -37,10 +37,10 @@ public class PaymentServiceImpl implements PaymentService {
     private final ModelMapper modelMapper;
     private final PdfGeneratorService pdfGeneratorService;
 
-    @Value("${Paystack.apiKey}")
+    @Value("${paystack.apiKey}")
     private String secretKey;
 
-    @Value("${Paystack.uri}")
+    @Value("${paystack.uri}")
     private String baseUri;
 
     @Value("${rabbitmq.exchange.name}")
