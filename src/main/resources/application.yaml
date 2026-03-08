@@ -40,15 +40,15 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
-Paystack:
-  apiKey: ${PAYSTACK_SECRET}
+paystack:
+  apiKey: ${PAYSTACK_SECRET_KEY}
   uri: ${PAYSTACK_BASE_URI}
 
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
 
-Cloudinary:
+cloudinary:
   cloud-name: ${CLOUDINARY_NAME}
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
@@ -62,5 +62,4 @@ rabbitmq:
     key: ${RABBITMQ_ROUTING_KEY}
 
 google:
-  credentials:
-    path: ${GOOGLE_APPLICATION_CREDENTIALS}
+  credentials: ${GOOGLE_APPLICATION_CREDENTIALS}

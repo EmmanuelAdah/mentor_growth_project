@@ -9,6 +9,13 @@ spring:
     password: ${DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -38,12 +45,15 @@ rabbitmq:
   routing:
     key: ${RABBITMQ_ROUTING_KEY}
 
+paystack:
+  apiKey: ${PAYSTACK_SECRET_KEY}
+  uri: ${PAYSTACK_BASE_URI}
 
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
 
-Cloudinary:
+cloudinary:
   cloud-name: ${CLOUDINARY_NAME}
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
