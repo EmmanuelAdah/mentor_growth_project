@@ -43,7 +43,7 @@ spring:
   profiles:
     active: local
 
-Paystack:
+paystack:
   apiKey: ${PAYSTACK_SECRET_KEY}
   uri: ${PAYSTACK_BASE_URI}
 
@@ -59,7 +59,7 @@ jwt:
   secret:
     key: ${JWT_SECRET_KEY}
 
-Cloudinary:
+cloudinary:
   cloud-name: ${CLOUDINARY_NAME}
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
