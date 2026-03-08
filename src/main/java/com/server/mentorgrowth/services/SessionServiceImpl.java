@@ -56,7 +56,6 @@ public class SessionServiceImpl implements SessionService {
                             .setConferenceSolutionKey(new ConferenceSolutionKey().setType("hangoutsMeet")));
             event.setConferenceData(conferenceData);
 
-
             Event createdEvent = service.events().insert("primary", event)
                     .setConferenceDataVersion(1)
                     // This ensures they get an email notification
