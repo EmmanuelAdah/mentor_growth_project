@@ -53,17 +53,11 @@ public class PaymentServiceImpl implements PaymentService {
     public InitiatePaymentResponse createPayment(PaymentRequest request) {
         log.info("Initiating payment for mentee: {} and mentor: {}", request.getUserId(), request.getMentorId());
         List<String> ids = List.of(request.getUserId(), request.getMentorId());
-        List<UserResponse> users = userService.findAllByIds(ids);
 
-        UserResponse savedMentee = users.stream()
-                .filter(u -> u.getId().equals(request.getUserId()))
-                .findFirst()
-                .orElseThrow(() -> new UserNotFoundException("Mentee not found"));
+        Map<String, UserResponse> users = userService.findAndMapUsersByIds(ids, request.getUserId(), request.getMentorId());
 
-        UserResponse savedMentor = users.stream()
-                .filter(u -> u.getId().equals(request.getMentorId()))
-                .findFirst()
-                .orElseThrow(() -> new UserNotFoundException("Mentor found"));
+        UserResponse savedMentee = users.get(request.getUserId());
+        UserResponse savedMentor = users.get(request.getMentorId());
 
         Map<String, Object> paymentDetails = Map.of(
                 "email", savedMentee.getEmail(),
