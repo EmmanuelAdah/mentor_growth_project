@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import static reactor.netty.http.HttpConnectionLiveness.log;
 
@@ -26,12 +27,17 @@ public class MentorshipServiceImpl implements MentorshipService {
 
     public MentorshipResponse createMentorship(MentorshipRequest request) {
         log.info("There a mentorship call with this {}", request);
-        UserResponse mentor = userService.findById(request.getMentorId());
-        UserResponse mentee = userService.findById(request.getUserId());
+        List<String> ids = List.of(request.getMentorId(), request.getUserId());
+
+        Map<String, UserResponse> users = userService.findAndMapUsersByIds(
+                ids,
+                request.getUserId(),
+                request.getMentorId()
+        );
 
         Mentorship mentorship = new Mentorship();
-        mentorship.setMentor(modelMapper.map(mentor, User.class));
-        mentorship.setMentee(modelMapper.map(mentee, User.class));
+        mentorship.setMentor(modelMapper.map(users.get(request.getMentorId()), User.class));
+        mentorship.setMentee(modelMapper.map(users.get(request.getUserId()), User.class));
 
         Mentorship savedMentorship = mentorshipRepository.save(mentorship);
 

@@ -8,6 +8,7 @@ import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.UserRepository;
 import com.server.mentorgrowth.services.interfaces.UserService;
 import com.server.mentorgrowth.utils.Mapper;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
@@ -36,17 +37,6 @@ public class UserServiceImpl implements UserService {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Invalid email or password"));
-    }
-
-    @Override
-    public List<UserResponse> findAllByIds(List<String> ids) {
-        List<User> users = userRepository.findAllById(ids);
-        if (users.isEmpty())
-            throw new UserNotFoundException("User not found");
-
-        return users.stream()
-                .map(user -> modelMapper.map(user, UserResponse.class))
-                .toList();
     }
 
     @Override
@@ -107,5 +97,29 @@ public class UserServiceImpl implements UserService {
         }
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserResponse.class);
+    }
+
+    @Override
+    public Map<String, UserResponse> findAndMapUsersByIds(List<String> ids, @NotBlank String userId, @NotBlank String mentorId) {
+        List<User> users = userRepository.findAllById(ids);
+        if (users.isEmpty())
+            throw new UserNotFoundException("No user found");
+
+        List<UserResponse> userResponses = users.stream()
+                .map(user -> modelMapper.map(user, UserResponse.class))
+                .toList();
+
+        userResponses.stream()
+                .filter(user -> user.getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException("Mentee not found"));
+
+        userResponses.stream()
+                .filter(user -> user.getId().equals(mentorId))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException("Mentor found"));
+
+        return userResponses.stream()
+                .collect(Collectors.toMap(UserResponse::getId, user -> user));
     }
 }
