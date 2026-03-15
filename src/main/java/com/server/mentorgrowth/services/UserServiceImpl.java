@@ -7,7 +7,6 @@ import com.server.mentorgrowth.models.Role;
 import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.UserRepository;
 import com.server.mentorgrowth.services.interfaces.UserService;
-import com.server.mentorgrowth.utils.Mapper;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -49,13 +48,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getAllMentors() {
-        List<User> mentors = userRepository.findByRole(Role.ROLE_MENTOR);
-
-        if(mentors.isEmpty())
-            throw new UserNotFoundException("User not found");
-
-        return mentors.stream()
-                .map(Mapper::map)
+        return userRepository.findByRole(Role.ROLE_MENTOR)
+                .stream()
+                .map(user -> modelMapper.map(user, UserResponse.class))
                 .toList();
     }
 
@@ -69,12 +64,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public @Nullable List<UserResponse> getAllMentees() {
-        List<User> mentees = userRepository.findByRole(Role.ROLE_MENTEE);
-
-        if(mentees.isEmpty()) throw new UserNotFoundException("User not found");
-
-        return mentees.stream()
-                .map(Mapper::map)
+        return userRepository.findByRole(Role.ROLE_MENTEE)
+                .stream()
+                .map(user -> modelMapper.map(user, UserResponse.class))
                 .toList();
     }
 
@@ -84,19 +76,16 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         try {
-            Map<?, ?> result = cloudinary.uploader().upload(
-                    file.getBytes(),
-                    Map.of(
-                            "folder", "uploads",
-                            "resource_type", "image"
-                    )
+            var result = cloudinary.uploader().upload(
+                    file.getInputStream(),
+                    Map.of("folder", "uploads", "resource_type", "image")
             );
             user.setProfileImage(result.get("secure_url").toString());
+
         } catch (IOException e) {
             throw new RuntimeException("Image upload failed");
         }
-        User savedUser = userRepository.save(user);
-        return modelMapper.map(savedUser, UserResponse.class);
+        return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
 
     @Override
