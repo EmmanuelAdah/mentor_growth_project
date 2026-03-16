@@ -21,6 +21,15 @@ spring:
       ddl-auto: update
     show-sql: false
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: default
+      password: ${REDIS_PASSWORD}
+      timeout: 60000
+      database: 0
+
   security:
     oauth2:
       client:
@@ -36,6 +45,12 @@ spring:
     password: ${RABBITMQ_PASSWORD}
     port: 5672
     host: localhost
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
 
 rabbitmq:
   exchange:

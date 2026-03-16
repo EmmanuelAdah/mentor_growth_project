@@ -16,10 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,6 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final UserServiceImpl userService;
     private final PaymentRepository paymentRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final ModelMapper modelMapper;
     private final PdfGeneratorService pdfGeneratorService;
 
@@ -80,7 +83,9 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("Payment initiated via reference: {}", payment.getReference());
         String reference = response.get("reference").toString();
 
-        paymentRepository.save(payment);
+        redisTemplate.opsForValue()
+                .set("Payment: " + reference, payment, Duration.ofMinutes(10));
+
         String authUrl = response.get("authorizationUrl").toString();
 
         return new InitiatePaymentResponse(authUrl, reference);
