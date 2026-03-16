@@ -351,7 +351,7 @@ Ensure the following tools are installed:
 ## Clone the Repository
 
 ```id="r91a5m"
-git clone https://github.com/your-username/mentor-growth.git
+git clone https://github.com/EmmanuelAdah/mentor_growth_project.git
 cd mentor-growth
 ```
 
