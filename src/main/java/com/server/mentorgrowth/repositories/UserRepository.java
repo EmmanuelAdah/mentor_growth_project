@@ -1,6 +1,5 @@
 package com.server.mentorgrowth.repositories;
 
-
 import com.server.mentorgrowth.models.Role;
 import com.server.mentorgrowth.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;

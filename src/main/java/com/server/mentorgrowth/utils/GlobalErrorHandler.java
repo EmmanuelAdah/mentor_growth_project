@@ -22,9 +22,10 @@ public class GlobalErrorHandler {
             InvalidUserIdentityException.class,
             InvalidPaymentIdentityException.class,
             InvalidPasswordLengthException.class,
-            InvalidCredentialsException.class
+            InvalidCredentialsException.class,
+            InvalidRoleException.class
     })
-    public ResponseEntity<Map<String, Object>> handleInvalidPaymentReferenceException(RuntimeException ex) {
+    public ResponseEntity<Map<String, Object>> handleInvalidFieldExceptions(RuntimeException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("message", ex.getMessage()));
@@ -32,11 +33,6 @@ public class GlobalErrorHandler {
 
     @ExceptionHandler(NotExistingMentorshipException.class)
     public Map<String, Object> handleNotExistingMentorshipException(NotExistingMentorshipException ex) {
-        return Map.of("message", ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidRoleException.class)
-    public Map<String, Object> handleInvalidRoleException(InvalidRoleException ex) {
         return Map.of("message", ex.getMessage());
     }
 

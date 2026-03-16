@@ -16,7 +16,9 @@ public class Mapper {
                 .toUpperCase().trim());
         user.setLastName(request.getLastName()
                 .toUpperCase().trim());
-        user.setEmail(request.getEmail());
+        user.setEmail(request.getEmail()
+                .trim()
+                .toLowerCase());
         try {
             user.setRole(Role.valueOf("ROLE_" + request.getRole()
                     .toUpperCase()));

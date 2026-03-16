@@ -12,7 +12,14 @@ spring:
     password: ${LOCAL_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
-
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: default
+      password: ${REDIS_PASSWORD}
+      timeout: 60000
+      database: 0
 
   jpa:
     hibernate:
@@ -43,6 +50,12 @@ spring:
   profiles:
     active: local
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
 paystack:
   apiKey: ${PAYSTACK_SECRET_KEY}
   uri: ${PAYSTACK_BASE_URI}
@@ -64,5 +77,5 @@ cloudinary:
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
 
-google:
-  credentials: ${GOOGLE_APPLICATION_CREDENTIALS}
+#google:
+#  credentials: ${GOOGLE_APPLICATION_CREDENTIALS}

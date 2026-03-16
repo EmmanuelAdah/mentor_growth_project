@@ -22,6 +22,15 @@ spring:
     password: ${LOCAL_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: default
+      password: ${REDIS_PASSWORD}
+      timeout: 60000
+      database: 0
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -39,6 +48,12 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
 
 paystack:
   apiKey: ${PAYSTACK_SECRET_KEY}
