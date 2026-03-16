@@ -19,6 +19,8 @@ public class Mentor extends User {
 //    )
 //    private List<Service> services;
 
+    private double pricing = 0;
+
     @Column(precision = 10, scale = 2)
     private BigDecimal earnings;
 }

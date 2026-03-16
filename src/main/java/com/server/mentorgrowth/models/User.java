@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "user_role", discriminatorType = DiscriminatorType.STRING)
 public class User implements UserDetails {
     @Id
@@ -78,16 +78,5 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
-    }
-
-    @ManyToOne(optional = false)
-    private Service services;
-
-    public Service getServices() {
-        return services;
-    }
-
-    public void setServices(Service services) {
-        this.services = services;
     }
 }
