@@ -1,6 +1,7 @@
 package com.server.mentorgrowth.utils;
 
 import com.server.mentorgrowth.exceptions.*;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -53,5 +54,22 @@ public class GlobalErrorHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+
+        String message = "Database constraint violation";
+
+        if (ex.getRootCause() != null) {
+            message = ex.getRootCause().getMessage();
+        }
+
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "error", "DATA_INTEGRITY_VIOLATION",
+                        "message", message
+                )
+        );
     }
 }
