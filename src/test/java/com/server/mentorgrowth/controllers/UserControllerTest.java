@@ -1,50 +1,26 @@
 package com.server.mentorgrowth.controllers;
 
 import com.server.mentorgrowth.dtos.response.UserResponse;
-import com.server.mentorgrowth.models.User;
-import com.server.mentorgrowth.repositories.UserRepository;
+import com.server.mentorgrowth.services.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import java.util.Optional;
-import static org.mockito.ArgumentMatchers.any;
+import org.mockito.Mockito;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
 class UserControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
-    private UserRepository userRepository;
-
-    @MockitoBean
-    private ModelMapper mapper;
-
-    private User user;
+    UserServiceImpl userService;
+    private WebTestClient webTestClient;
 
     @BeforeEach
     void setUp() {
-        user = new User();
-        user.setId("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e");
-        user.setFirstName("JOHN");
-        user.setLastName("DOE");
-        user.setEmail("johndoe@gmail.com");
+        userService = Mockito.mock(UserServiceImpl.class);
+        UserController controller = new UserController(userService);
+        webTestClient = WebTestClient.bindToController(controller).build();
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void findById() throws Exception {
-
+    void findById() {
         UserResponse userResponse = UserResponse.builder()
                 .id("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")
                 .firstName("JOHN")
@@ -52,21 +28,29 @@ class UserControllerTest {
                 .email("johndoe@gmail.com")
                 .build();
 
-        when(userRepository.findById(any()))
-                .thenReturn(Optional.of(user));
-
-        when(mapper.map(user, UserResponse.class))
+        when(userService.findById("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e"))
                 .thenReturn(userResponse);
 
-        mockMvc.perform(get("/api/v1/user/7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")
-                        .contentType("application/json"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("JOHN"))
-                .andExpect(jsonPath("$.email").value("johndoe@gmail.com"));
+        webTestClient.get()
+                .uri("/api/v1/user/7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")
+                .jsonPath("$.email").isEqualTo("johndoe@gmail.com");
     }
 
     @Test
     void findByEmail() {
+        when(userService.existByEmail("johndoe@gmail.com"))
+                .thenReturn(true);
+
+        webTestClient.get()
+                .uri("/api/v1/user/email/johndoe@gmail.com")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Boolean.class)
+                .isEqualTo(true);
     }
 
     @Test

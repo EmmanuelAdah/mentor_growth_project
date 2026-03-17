@@ -1,4 +1,4 @@
-package com.server.mentorgrowth.config;
+package com.server.mentorgrowth.configs;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Bean;

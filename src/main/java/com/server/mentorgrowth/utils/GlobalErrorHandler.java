@@ -20,9 +20,10 @@ public class GlobalErrorHandler {
             UserNotFoundException.class,
             InvalidPaymentReferenceException.class,
             InvalidEmailFormatException.class,
+            InvalidNameFormatException.class,
+            InvalidPasswordFormatException.class,
             InvalidUserIdentityException.class,
             InvalidPaymentIdentityException.class,
-            InvalidPasswordLengthException.class,
             InvalidCredentialsException.class,
             InvalidRoleException.class
     })

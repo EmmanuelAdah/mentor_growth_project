@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
 import static com.server.mentorgrowth.utils.Mapper.map;
+import static com.server.mentorgrowth.utils.Mapper.validateFields;
 
 @Slf4j
 @Service
@@ -28,11 +29,8 @@ public class AuthService {
     private final ModelMapper modelMapper;
 
     public UserAuthResponse saveUser(RegisterRequest request){
+        validateFields(request);
 
-        String password = request.getPassword();
-        if (password.length() < 6 || password.length() > 20){
-            throw new InvalidPasswordLengthException("Password must be between 6 to 20 characters long");
-        }
         request.setPassword(Objects.requireNonNull(passwordEncoder.encode(request.getPassword())));
 
         if(userRepository.existsByEmail(request.getEmail())){

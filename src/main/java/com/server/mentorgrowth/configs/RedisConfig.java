@@ -1,4 +1,4 @@
-package com.server.mentorgrowth.config;
+package com.server.mentorgrowth.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;

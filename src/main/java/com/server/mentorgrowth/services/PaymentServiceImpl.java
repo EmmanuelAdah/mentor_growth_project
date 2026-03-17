@@ -18,6 +18,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -112,6 +113,22 @@ public class PaymentServiceImpl implements PaymentService {
             notifyUsers(existingPayment, payment.getMentor());
         }
         return mapPayment(payment);
+    }
+
+    @Transactional
+    public void handleSuccessfulPayment(String reference, double amount, String status) {
+
+        Payment payment = (Payment) redisTemplate.opsForValue().get("Payment: " + reference);
+
+        if (payment == null) {
+            log.error("Payment not found for reference: {}", reference);
+            return;
+        }
+
+        payment.setStatus(status);
+        payment.setAmount(amount / 100);
+
+        paymentRepository.save(payment);
     }
 
     private void notifyUsers(Payment payment, User user) {

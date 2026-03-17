@@ -1,4 +1,4 @@
-package com.server.mentorgrowth.config;
+package com.server.mentorgrowth.configs;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
