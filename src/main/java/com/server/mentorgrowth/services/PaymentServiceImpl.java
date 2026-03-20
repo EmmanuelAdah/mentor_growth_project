@@ -126,7 +126,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         payment.setStatus(status);
-        payment.setAmount(amount / 100);
+        payment.setAmount(amount);
 
         paymentRepository.save(payment);
     }
