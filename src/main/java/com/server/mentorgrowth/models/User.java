@@ -29,6 +29,8 @@ public class User implements UserDetails {
     private String firstName;
     private String lastName;
     private int age;
+
+    @Column(unique = true, nullable = false)
     private String email;
 
     @JsonIgnore
@@ -40,6 +42,8 @@ public class User implements UserDetails {
     private String profession;
     private String linkedin;
     private String profileImage;
+
+    @JsonIgnore
     private String password;
 
     @Column(name = "is_approved", nullable = false)
