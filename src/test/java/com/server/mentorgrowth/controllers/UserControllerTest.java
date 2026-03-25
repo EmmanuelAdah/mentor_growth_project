@@ -37,7 +37,8 @@ class UserControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.id").isEqualTo("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")
-                .jsonPath("$.email").isEqualTo("johndoe@gmail.com");
+                .jsonPath("$.email").isEqualTo("johndoe@gmail.com")
+                .jsonPath("$.firstName").isEqualTo("JOHN");
     }
 
     @Test
@@ -51,6 +52,19 @@ class UserControllerTest {
                 .expectStatus().isOk()
                 .expectBody(Boolean.class)
                 .isEqualTo(true);
+    }
+
+    @Test
+    void findByEmail_userDoesNotExist() {
+        when(userService.existByEmail("johndoe@gmail.com"))
+                .thenReturn(false);
+
+        webTestClient.get()
+                .uri("/api/v1/user/email/johndoe@gmail.com")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Boolean.class)
+                .isEqualTo(false);
     }
 
     @Test

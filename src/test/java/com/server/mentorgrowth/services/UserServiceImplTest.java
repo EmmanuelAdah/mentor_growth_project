@@ -17,6 +17,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -215,7 +216,7 @@ class UserServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(cloudinary.uploader()).thenReturn(uploader);
-        when(uploader.upload(any(byte[].class), anyMap())).thenReturn(uploadResult);
+        when(uploader.upload(any(InputStream.class), anyMap())).thenReturn(uploadResult);
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(modelMapper.map(any(User.class), eq(UserResponse.class))).thenReturn(expectedResponse);
 

@@ -9,6 +9,9 @@ import com.server.mentorgrowth.exceptions.InvalidNameFormatException;
 import com.server.mentorgrowth.exceptions.InvalidPasswordFormatException;
 import com.server.mentorgrowth.exceptions.InvalidRoleException;
 import com.server.mentorgrowth.models.*;
+import org.passay.*;
+
+import java.util.Arrays;
 import java.util.Map;
 
 public class Mapper {
@@ -85,9 +88,19 @@ public class Mapper {
         validatePassword(request.getPassword());
     }
 
-    public static void validatePassword(String password){
-        if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[^A-Za-z\\\\d]).{8,64}$")){
-            throw new InvalidPasswordFormatException("Password must be between 8 to 20 characters, include an uppercase letter, a number, and a special character.");
+    public static void validatePassword(String password) {
+        PasswordValidator validator = new PasswordValidator(Arrays.asList(
+                new LengthRule(8, 64),
+                new CharacterRule(EnglishCharacterData.UpperCase, 1),
+                new CharacterRule(EnglishCharacterData.LowerCase, 1),
+                new CharacterRule(EnglishCharacterData.Digit, 1),
+                new CharacterRule(EnglishCharacterData.Special, 1),
+                new WhitespaceRule()
+        ));
+
+        RuleResult result = validator.validate(new PasswordData(password));
+        if (!result.isValid()) {
+            throw new InvalidPasswordFormatException("Invalid Password: " + validator.getMessages(result));
         }
     }
 

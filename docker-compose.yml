@@ -1,56 +1,45 @@
-
-version: '3.8'
+version: "3.9"
 
 services:
-  # PostgreSQL Database
-#  postgres:
-#    image: postgres:18-alpine
-#    container_name: mentorgrowth-db
-#    restart: unless-stopped
-#    environment:
-#      POSTGRES_DB: mentorgrowth
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: postgres123
-#    ports:
-#      - "5432:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#    networks:
-#      - mentorgrowth-network
-#    healthcheck:
-#      test: ["CMD-SHELL", "pg_isready -U postgres"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # RabbitMQ (for your AMQP needs)
-  my-rabbit:
-    image: rabbitmq:management
-    container_name: rabbitmq
-    hostname: my-rabbit
+  rabbitmq:
+    image: rabbitmq:3.13-management
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-    ports:
-      - "5672:5672"   # AMQP port
-      - "15672:15672" # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
     networks:
-      - mentorgrowth-network
+      - backend
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Your Spring Boot Application
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: mentorgrowth-app
     restart: unless-stopped
     depends_on:
       postgres:
@@ -58,52 +47,67 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
-#      Database Configuration
-#      SPRING_DATASOURCE_URL: ${DATASOURCE_URL}
-#      SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME}
-#      SPRING_DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD}
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
-      # RabbitMQ Configuration
-      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
-      SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT}
+      # RabbitMQ
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
-      # JPA/Hibernate
+      # JPA
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "false"
 
-      # Application Profile
+      # Profile
       SPRING_PROFILES_ACTIVE: docker
 
-      # JWT Secret (use a strong secret in production!)
+      # Security
       JWT_SECRET: ${JWT_SECRET_KEY}
 
-      # Stripe API Key (use environment variable or secrets manager)
-#      STRIPE_API_KEY: ${STRIPE_API_KEY}
-
-      # Google OAuth
+      # External services
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-
-      # Cloudinary
-      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+
     ports:
       - "8080:8080"
     networks:
-      - mentorgrowth-network
+      - backend
+      - frontend
     volumes:
       - app_logs:/app/logs
 
-# Define networks
-networks:
-  mentorgrowth-network:
-    driver: bridge
+  # Optional (disable in production ideally)
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "127.0.0.1:5050:80"  # 🔐 restrict access
+    depends_on:
+      - postgres
 
-# Define volumes for data persistence
+networks:
+  backend:
+    internal: true
+  frontend:
+    internal: true
+
 volumes:
   postgres_data:
   rabbitmq_data:
+  pgadmin_data:
   app_logs:
