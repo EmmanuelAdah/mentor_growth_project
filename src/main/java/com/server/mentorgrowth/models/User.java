@@ -41,7 +41,7 @@ public class User implements UserDetails {
     private String phoneNumber;
     private String profession;
     private String linkedin;
-    private String profileImage;
+    private String profileImageUrl;
 
     @JsonIgnore
     private String password;

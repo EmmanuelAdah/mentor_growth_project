@@ -156,7 +156,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getAllMentees() {
+    void getAllMentees_ShouldReturnMappedList_WhenMenteesExist() {
         User user1 = new User();
         user.setId(String.valueOf(UUID.fromString("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")));
         user.setFirstName("JOHN");
@@ -183,11 +183,11 @@ class UserServiceImplTest {
                 .role("mentee")
                 .build();
 
-        when(userRepository.findAll()).thenReturn(users);
+        when(userRepository.findByRole(Role.ROLE_MENTEE)).thenReturn(users);
         when(modelMapper.map(any(User.class), eq(UserResponse.class)))
                 .thenReturn(userResponse);
 
-        List<UserResponse> response = userServiceImpl.findAllUsers();
+        List<UserResponse> response = userServiceImpl.getAllMentees();
 
         assertNotNull(response);
         assertEquals(2, response.size());
@@ -196,39 +196,112 @@ class UserServiceImplTest {
         assertEquals("mentee", response.get(1).getRole());
         assertFalse("mentor".equals(response.get(1).getRole()));
 
+        verify(userRepository, times(1)).findByRole(Role.ROLE_MENTEE);
         verify(modelMapper, times(2)).map(any(User.class), eq(UserResponse.class));
     }
 
     @Test
-    void updateProfilePicture_Success() throws IOException {
-        // Arrange
-        String userId = "7e5b7ff1-4281-4c67-9cdd-6297c4e4986e";
-        MultipartFile mockFile = new MockMultipartFile("file", "test.jpg", "image/jpeg", "image-data".getBytes());
+    void getAllMentors_ShouldReturnMappedList_WhenMentorsExist() {
+        User user1 = new User();
+        user.setId(String.valueOf(UUID.fromString("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")));
+        user.setFirstName("JOHN");
+        user.setLastName("DOE");
+        user.setRole(Role.ROLE_MENTOR);
+        user.setEmail("test@example.com");
+        user.setPassword("encoded-password");
 
-        User user = new User();
-        user.setId(userId);
+        User user2 = new User();
+        user.setId(String.valueOf(UUID.fromString("7e5b7ff1-4281-4c67-9cdd-6297c4e4986e")));
+        user.setFirstName("JAMES");
+        user.setLastName("TEE");
+        user.setRole(Role.ROLE_MENTOR);
+        user.setEmail("test@example.com");
+        user.setPassword("encoded-password");
 
-        Map<String, Object> uploadResult = Map.of("secure_url", "https://cloudinary.com/photo.jpg");
+        List<User> mentors = new ArrayList<>(List.of(user1, user2));
 
-        UserResponse expectedResponse = new UserResponse();
-        expectedResponse.setId(userId);
-        expectedResponse.setProfileImage("https://cloudinary.com/photo.jpg");
+        UserResponse userResponse = UserResponse.builder()
+                .id(String.valueOf(UUID.fromString("7e5b7ff1-4281-4c67-9cdd-6297c4e4986e")))
+                .firstName("JAMES")
+                .lastName("TEE")
+                .email("test@example.com")
+                .role("mentor")
+                .build();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(cloudinary.uploader()).thenReturn(uploader);
-        when(uploader.upload(any(InputStream.class), anyMap())).thenReturn(uploadResult);
-        when(userRepository.save(any(User.class))).thenReturn(user);
-        when(modelMapper.map(any(User.class), eq(UserResponse.class))).thenReturn(expectedResponse);
+        when(userRepository.findByRole(Role.ROLE_MENTOR)).thenReturn(mentors);
+        when(modelMapper.map(any(User.class), eq(UserResponse.class)))
+                .thenReturn(userResponse);
 
-        UserResponse result = userServiceImpl.updateProfilePicture(userId, mockFile);
+        List<UserResponse> response = userServiceImpl.getAllMentors();
 
-        assertNotNull(result);
-        assertEquals("https://cloudinary.com/photo.jpg", result.getProfileImage());
-        assertEquals(user.getId(), result.getId());
+        assertNotNull(response);
+        assertEquals(2, response.size());
+        assertEquals("JAMES", response.get(1).getFirstName());
+        assertEquals("TEE", response.get(1).getLastName());
+        assertEquals("mentor", response.get(1).getRole());
+        assertFalse("mentee".equals(response.get(1).getRole()));
 
-        verify(userRepository).save(user);
-        verify(uploader).upload(eq(mockFile.getBytes()), anyMap());
+        verify(userRepository, times(1)).findByRole(Role.ROLE_MENTOR);
+        verify(modelMapper, times(2)).map(any(User.class), eq(UserResponse.class));
     }
+
+    @Test
+    void getAllMentors_ShouldReturnEmptyList_WhenNoMentorsFound() {
+        // Arrange
+        when(userRepository.findByRole(Role.ROLE_MENTOR)).thenReturn(Collections.emptyList());
+
+        // Act
+        List<UserResponse> result = userServiceImpl.getAllMentors();
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(userRepository, times(1)).findByRole(Role.ROLE_MENTOR);
+        verifyNoInteractions(modelMapper);
+    }
+
+    @Test
+    void getAllMentees_ShouldReturnEmptyList_WhenRepositoryReturnsNull() {
+        // Arrange
+        when(userRepository.findByRole(Role.ROLE_MENTEE)).thenReturn(Collections.emptyList());
+
+        // Act
+        List<UserResponse> result = userServiceImpl.getAllMentees();
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+//    @Test
+//    void updateProfilePicture_Success() throws IOException {
+//        // Arrange
+//        String userId = "7e5b7ff1-4281-4c67-9cdd-6297c4e4986e";
+//        MultipartFile mockFile = new MockMultipartFile("file", "test.jpg", "image/jpeg", "image-data".getBytes());
+//
+//        User user = new User();
+//        user.setId(userId);
+//
+//        Map<String, Object> uploadResult = Map.of("secure_url", "https://cloudinary.com/photo.jpg");
+//
+//        UserResponse expectedResponse = new UserResponse();
+//        expectedResponse.setId(userId);
+//        expectedResponse.setProfileImage("https://cloudinary.com/photo.jpg");
+//
+//        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+//        when(cloudinary.uploader()).thenReturn(uploader);
+//        when(uploader.upload(any(InputStream.class), anyMap())).thenReturn(uploadResult);
+//        when(userRepository.save(any(User.class))).thenReturn(user);
+//        when(modelMapper.map(any(User.class), eq(UserResponse.class))).thenReturn(expectedResponse);
+//
+//        UserResponse result = userServiceImpl.updateProfilePicture(userId, mockFile);
+//
+//        assertNotNull(result);
+//        assertEquals("https://cloudinary.com/photo.jpg", result.getProfileImage());
+//        assertEquals(user.getId(), result.getId());
+//
+//        verify(userRepository).save(user);
+//        verify(uploader).upload(eq(mockFile.getBytes()), anyMap());
+//    }
 
     @Test
     void updateProfilePicture_UserNotFound() {

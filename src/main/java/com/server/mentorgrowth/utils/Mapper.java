@@ -46,7 +46,7 @@ public class Mapper {
                 .phoneNumber(user.getPhoneNumber())
                 .profession(user.getProfession())
                 .linkedin(user.getLinkedin())
-                .profileImage(user.getProfileImage())
+                .profileImageUrl(user.getProfileImageUrl())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

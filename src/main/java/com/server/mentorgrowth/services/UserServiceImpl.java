@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
                     file.getInputStream(),
                     Map.of("folder", "uploads", "resource_type", "image")
             );
-            user.setProfileImage(result.get("secure_url").toString());
+            user.setProfileImageUrl(result.get("secure_url").toString());
 
         } catch (IOException e) {
             throw new RuntimeException("Image upload failed");

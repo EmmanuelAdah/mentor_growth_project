@@ -3,6 +3,7 @@ package com.server.mentorgrowth.controllers;
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,8 +41,10 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllMentees());
     }
 
-    @PutMapping("/update/image")
-    public ResponseEntity<UserResponse> updateProfilePicture(@RequestBody String id, MultipartFile file) {
+    @PutMapping(value = "/update/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> updateProfilePicture(
+            @RequestParam("id") String id,
+            @RequestPart("file") MultipartFile file) {
         return ResponseEntity.ok(userService.updateProfilePicture(id, file));
     }
 }
