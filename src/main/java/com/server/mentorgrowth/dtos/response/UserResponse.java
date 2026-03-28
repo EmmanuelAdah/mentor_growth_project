@@ -21,7 +21,7 @@ public class UserResponse {
     private String phoneNumber;
     private String profession;
     private String linkedin;
-    private String profileImage;
+    private String profileImageUrl;
 
     private LocalDateTime createdAt;
 }

@@ -21,4 +21,8 @@ public class Service {
     private String description;
     private String active;
     private double price = 0;
+
+    @ManyToOne
+    @JoinColumn(name = "mentor_id")
+    private Mentor mentor;
 }

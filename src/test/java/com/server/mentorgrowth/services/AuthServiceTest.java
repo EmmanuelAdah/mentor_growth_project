@@ -60,9 +60,9 @@ class AuthServiceTest {
         request.setLastName("Smith");
         request.setRole("MENTOR");
         request.setEmail("test@example.com");
-        request.setPassword("password");
+        request.setPassword("Password123@");
 
-        when(passwordEncoder.encode("password")).thenReturn("encoded-password");
+        when(passwordEncoder.encode(request.getPassword())).thenReturn("encoded-password");
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(jwtService.generateToken(user)).thenReturn("jwt-token");
@@ -79,10 +79,13 @@ class AuthServiceTest {
     @Test
     void saveUser_shouldThrowExceptionWhenUserExists() {
         RegisterRequest request = new RegisterRequest();
+        request.setFirstName("Adah");
+        request.setLastName("Smith");
+        request.setRole("MENTOR");
         request.setEmail("test@example.com");
-        request.setPassword("password");
+        request.setPassword("Password12_");
 
-        when(passwordEncoder.encode("password")).thenReturn("encoded-password");
+        when(passwordEncoder.encode(request.getPassword())).thenReturn("encoded-password");
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
 
         assertThrows(

@@ -1,4 +1,4 @@
-package com.server.mentorgrowth.config;
+package com.server.mentorgrowth.configs;
 
 import com.server.mentorgrowth.dtos.response.*;
 import com.server.mentorgrowth.models.*;
@@ -29,7 +29,8 @@ public class MapperConfig {
 
         modelMapper.typeMap(User.class, UserResponse.class)
                         .addMappings(mapper -> mapper
-                                .map(user -> user.getRole() != null ? user.getRole().name().toLowerCase()
+                                .map(user -> user.getRole() != null
+                                        ? user.getRole().name().toLowerCase()
                                         : null, UserResponse::setRole));
 
         modelMapper.createTypeMap(Mentee.class, User.class)
@@ -39,9 +40,13 @@ public class MapperConfig {
 
         modelMapper.typeMap(Payment.class, PaymentResponse.class)
                 .addMappings(mapper -> {
-                    mapper.map(payment -> payment.getMentee() != null ? payment.getMentee().getId() : null,
+                    mapper.map(payment -> payment.getMentee() != null
+                                    ? payment.getMentee().getId()
+                                    : null,
                             PaymentResponse::setUserId);
-                    mapper.map(payment -> payment.getMentor() != null ? payment.getMentor().getId() : null,
+                    mapper.map(payment -> payment.getMentor() != null
+                                    ? payment.getMentor().getId()
+                                    : null,
                             PaymentResponse::setMentorId);
                 });
         modelMapper.createTypeMap(Goal.class, GoalResponse.class)

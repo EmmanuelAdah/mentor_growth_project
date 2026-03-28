@@ -1,4 +1,4 @@
-package com.server.mentorgrowth.config;
+package com.server.mentorgrowth.configs;
 
 import com.cloudinary.Cloudinary;
 import org.springframework.beans.factory.annotation.Value;

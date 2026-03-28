@@ -5,7 +5,9 @@ import com.server.mentorgrowth.dtos.requests.VerifyPaymentRequest;
 import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.services.PaymentServiceImpl;
+import com.server.mentorgrowth.services.PaystackWebhookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentController {
     private final PaymentServiceImpl paymentService;
+    private final PaystackWebhookService webhookService;
+
+    @Value("${paystack.apiKey}")
+    private String paystackSecret;
 
     @PostMapping("/create")
     public ResponseEntity<InitiatePaymentResponse> createPayment(@RequestBody PaymentRequest paymentRequest) {
@@ -45,5 +51,19 @@ public class PaymentController {
     @GetMapping("/get/payments")
     public ResponseEntity<List<PaymentResponse>> getAllPayments() {
         return ResponseEntity.ok(paymentService.findAll());
+    }
+
+    @PostMapping("/paystack")
+    public ResponseEntity<String> handleWebhook(
+            @RequestHeader("x-paystack-signature") String signature,
+            @RequestBody String payload) {
+
+        if (!webhookService.verifySignature(payload, signature, paystackSecret)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid signature");
+        }
+
+        webhookService.processEvent(payload);
+
+        return ResponseEntity.ok("Webhook received");
     }
 }

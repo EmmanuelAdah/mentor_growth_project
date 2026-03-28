@@ -1,50 +1,33 @@
 package com.server.mentorgrowth.controllers;
 
 import com.server.mentorgrowth.dtos.response.UserResponse;
-import com.server.mentorgrowth.models.User;
-import com.server.mentorgrowth.repositories.UserRepository;
+import com.server.mentorgrowth.services.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import java.util.Optional;
-import static org.mockito.ArgumentMatchers.any;
+import org.mockito.Mockito;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.BodyInserters;
+import java.util.List;
+import java.util.UUID;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
 class UserControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
-    private UserRepository userRepository;
-
-    @MockitoBean
-    private ModelMapper mapper;
-
-    private User user;
+    UserServiceImpl userService;
+    private WebTestClient webTestClient;
 
     @BeforeEach
     void setUp() {
-        user = new User();
-        user.setId("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e");
-        user.setFirstName("JOHN");
-        user.setLastName("DOE");
-        user.setEmail("johndoe@gmail.com");
+        userService = Mockito.mock(UserServiceImpl.class);
+        UserController controller = new UserController(userService);
+        webTestClient = WebTestClient.bindToController(controller).build();
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void findById() throws Exception {
-
+    void findById() {
         UserResponse userResponse = UserResponse.builder()
                 .id("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")
                 .firstName("JOHN")
@@ -52,32 +35,114 @@ class UserControllerTest {
                 .email("johndoe@gmail.com")
                 .build();
 
-        when(userRepository.findById(any()))
-                .thenReturn(Optional.of(user));
-
-        when(mapper.map(user, UserResponse.class))
+        when(userService.findById("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e"))
                 .thenReturn(userResponse);
 
-        mockMvc.perform(get("/api/v1/user/7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")
-                        .contentType("application/json"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("JOHN"))
-                .andExpect(jsonPath("$.email").value("johndoe@gmail.com"));
+        webTestClient.get()
+                .uri("/api/v1/user/7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")
+                .jsonPath("$.email").isEqualTo("johndoe@gmail.com")
+                .jsonPath("$.firstName").isEqualTo("JOHN");
     }
 
     @Test
     void findByEmail() {
+        when(userService.existByEmail("johndoe@gmail.com"))
+                .thenReturn(true);
+
+        webTestClient.get()
+                .uri("/api/v1/user/email/johndoe@gmail.com")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Boolean.class)
+                .isEqualTo(true);
     }
 
     @Test
-    void getAllMentors() {
+    void findByEmail_userDoesNotExist() {
+        when(userService.existByEmail("johndoe@gmail.com"))
+                .thenReturn(false);
+
+        webTestClient.get()
+                .uri("/api/v1/user/email/johndoe@gmail.com")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Boolean.class)
+                .isEqualTo(false);
     }
 
     @Test
-    void getAllMentees() {
+    void getAllMentors_ShouldReturnList() {
+        UserResponse response = UserResponse.builder()
+                .id(String.valueOf(UUID.fromString("7e5b7ff1-4281-4c67-9cdd-6297c4e4986e")))
+                .firstName("JOHN")
+                .lastName("TEE")
+                .email("test@example.com")
+                .role("mentor")
+                .build();
+
+        when(userService.getAllMentors()).thenReturn(List.of(response));
+
+        webTestClient.get()
+                .uri("/api/v1/user/mentors/all") // Adjust to your actual mapping
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody()
+                .jsonPath("$[0].firstName").isEqualTo("JOHN")
+                .jsonPath("$.length()").isEqualTo(1);
     }
 
     @Test
-    void updateProfilePicture() {
+    void getAllMentees_ShouldReturnList() {
+        UserResponse response = UserResponse.builder()
+                .id(String.valueOf(UUID.fromString("7e5b7ff1-4281-4c67-9cdd-6297c4e4986e")))
+                .firstName("JAMES")
+                .lastName("TEE")
+                .email("test@example.com")
+                .role("mentor")
+                .build();
+
+        when(userService.getAllMentees()).thenReturn(List.of(response));
+
+        webTestClient.get()
+                .uri("/api/v1/user/mentees/all")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(UserResponse.class)
+                .hasSize(1);
     }
+
+//    @Test
+//    void updateProfilePicture_ShouldReturnUpdatedUser() {
+//        // 1. Arrange
+//        String userId = "7e5b7ff1-4281-4c67-9cdd-6297c4e4986e";
+//        UserResponse mockResponse = new UserResponse();
+//        mockResponse.setProfileImageUrl("http://images.com/photo.jpg");
+//
+//        when(userService.updateProfilePicture(eq(userId), any(MultipartFile.class)))
+//                .thenReturn(mockResponse);
+//
+//        // 2. Build the multipart data
+//        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+//
+//        builder.part("id", userId, MediaType.APPLICATION_JSON);
+//
+//        // Build the file part
+//        builder.part("file", "fake-image-content".getBytes())
+//                .filename("profile.jpg")
+//                .contentType(MediaType.IMAGE_JPEG);
+//
+//        // 3. Act & Assert
+//        webTestClient.put()
+//                .uri("/api/v1/user/update/image") // No query params needed here
+//                .body(BodyInserters.fromMultipartData(builder.build()))
+//                .exchange()
+//                .expectStatus().isOk()
+//                .expectBody()
+//                .jsonPath("$.profileImageUrl").isEqualTo("http://images.com/photo.jpg");
+//    }
 }
