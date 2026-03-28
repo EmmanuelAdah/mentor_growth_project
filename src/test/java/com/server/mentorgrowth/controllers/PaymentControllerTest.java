@@ -43,7 +43,7 @@
 //    @Test
 //    void createPayment_ReturnsCreated() {
 //        PaymentRequest request = new PaymentRequest();
-//        request.setUserId("user123");
+//        request.setUserId("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e");
 //        request.setMentorId("mentor456");
 //        request.setAmount(5000.0);
 //        request.setCurrency("NGN");
