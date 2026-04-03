@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 @Data
@@ -37,5 +38,5 @@ public class PeerGroup {
 //    @JoinColumn(name = "creator_id")
     private User creator;
 
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 }
