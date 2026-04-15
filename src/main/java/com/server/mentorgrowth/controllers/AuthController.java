@@ -6,6 +6,7 @@ import com.server.mentorgrowth.dtos.response.UserAuthResponse;
 import com.server.mentorgrowth.exceptions.ServerConnectionException;
 import com.server.mentorgrowth.services.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +23,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserAuthResponse> createUser(@RequestBody RegisterRequest request){
+    public ResponseEntity<UserAuthResponse> createUser(@Valid @RequestBody RegisterRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.saveUser(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserAuthResponse> userLogin(@RequestBody LoginRequest request){
+    public ResponseEntity<UserAuthResponse> userLogin(@Valid @RequestBody LoginRequest request){
         return ResponseEntity.ok(authService.login(request));
     }
 
