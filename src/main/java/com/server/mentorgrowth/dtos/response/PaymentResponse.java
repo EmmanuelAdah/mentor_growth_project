@@ -1,7 +1,7 @@
 package com.server.mentorgrowth.dtos.response;
 
 import lombok.Data;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 public class PaymentResponse {
@@ -13,6 +13,6 @@ public class PaymentResponse {
     private String status;
     private String reference;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
 }
