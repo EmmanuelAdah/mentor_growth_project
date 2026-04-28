@@ -4,7 +4,8 @@ import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.time.LocalDateTime;
+
+import java.time.Instant;
 
 @Data
 @Builder
@@ -23,5 +24,5 @@ public class UserResponse {
     private String linkedin;
     private String profileImageUrl;
 
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }

@@ -3,8 +3,10 @@ package com.server.mentorgrowth.controllers;
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.services.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -12,9 +14,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import java.util.List;
 import java.util.UUID;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+
+@SpringBootTest
 class UserControllerTest {
     UserServiceImpl userService;
     private WebTestClient webTestClient;
@@ -27,6 +32,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("GET - /api/v1/user/{id}  -- Should return 200_OK")
     void findById() {
         UserResponse userResponse = UserResponse.builder()
                 .id("7e5b7ff1-4445-4c67-9cdd-6297c4e4886e")
@@ -49,6 +55,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("GET - /api/v1/user/email/{email} -- Should return true with status 200_OK")
     void findByEmail() {
         when(userService.existByEmail("johndoe@gmail.com"))
                 .thenReturn(true);
@@ -62,6 +69,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("GET - /api/v1/user/email/{email} -- Should return false - User not found")
     void findByEmail_userDoesNotExist() {
         when(userService.existByEmail("johndoe@gmail.com"))
                 .thenReturn(false);
@@ -75,6 +83,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("GET - /api/v1/user/mentors/all -- Should return list of mentors")
     void getAllMentors_ShouldReturnList() {
         UserResponse response = UserResponse.builder()
                 .id(String.valueOf(UUID.fromString("7e5b7ff1-4281-4c67-9cdd-6297c4e4986e")))
@@ -97,6 +106,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("GET - /api/v1/user/mentees/all -- Should return list of mentees")
     void getAllMentees_ShouldReturnList() {
         UserResponse response = UserResponse.builder()
                 .id(String.valueOf(UUID.fromString("7e5b7ff1-4281-4c67-9cdd-6297c4e4986e")))
