@@ -33,6 +33,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserById(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Invalid email or password"));
@@ -106,7 +112,7 @@ public class UserServiceImpl implements UserService {
         userResponses.stream()
                 .filter(user -> user.getId().equals(mentorId))
                 .findFirst()
-                .orElseThrow(() -> new UserNotFoundException("Mentor found"));
+                .orElseThrow(() -> new UserNotFoundException("Mentor not found"));
 
         return userResponses.stream()
                 .collect(Collectors.toMap(UserResponse::getId, user -> user));

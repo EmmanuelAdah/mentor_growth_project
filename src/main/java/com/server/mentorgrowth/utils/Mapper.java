@@ -16,23 +16,26 @@ import java.util.Map;
 
 public class Mapper {
 
-    public static User map(RegisterRequest request){
-
-        User user = new User();
-        user.setFirstName(request.getFirstName()
-                .toUpperCase().trim());
-        user.setLastName(request.getLastName()
-                .toUpperCase().trim());
-        user.setEmail(request.getEmail()
-                .trim()
-                .toLowerCase());
+    public static User map(RegisterRequest request) {
+        Role role;
         try {
-            user.setRole(Role.valueOf("ROLE_" + request.getRole()
-                    .toUpperCase()));
+            role = Role.valueOf("ROLE_" + request.getRole().toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new InvalidRoleException("Invalid role");
         }
+
+        User user = switch (role) {
+            case ROLE_MENTOR -> new Mentor();
+            case ROLE_MENTEE -> new Mentee();
+            case ROLE_ADMIN -> new User();
+        };
+
+        user.setFirstName(request.getFirstName().toUpperCase().trim());
+        user.setLastName(request.getLastName().toUpperCase().trim());
+        user.setEmail(request.getEmail().trim().toLowerCase());
+        user.setRole(role);
         user.setPassword(request.getPassword());
+        user.setIsApproved(false);
 
         return user;
     }

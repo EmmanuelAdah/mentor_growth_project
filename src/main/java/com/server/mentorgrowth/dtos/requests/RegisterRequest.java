@@ -1,5 +1,7 @@
 package com.server.mentorgrowth.dtos.requests;
 
+import com.server.mentorgrowth.customAnnotations.ValidateEmail;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Data
@@ -7,18 +9,19 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterRequest {
-    @NonNull
+    @NotBlank
     private String firstName;
 
-    @NonNull
+    @NotBlank
     private String lastName;
 
-    @NonNull
+    @NotBlank
+    @ValidateEmail
     private String email;
 
-    @NonNull
+    @NotBlank
     private String role;
 
-    @NonNull
+    @NotBlank
     private String password;
 }

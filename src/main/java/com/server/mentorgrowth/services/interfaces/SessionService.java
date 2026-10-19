@@ -1,9 +1,8 @@
 package com.server.mentorgrowth.services.interfaces;
 
 import com.server.mentorgrowth.dtos.requests.SessionRequest;
-import org.jspecify.annotations.Nullable;
+import com.server.mentorgrowth.dtos.response.SessionResponse;
 
 public interface SessionService {
-
-    @Nullable String createSession(SessionRequest request);
+    SessionResponse createSession(SessionRequest request);
 }
