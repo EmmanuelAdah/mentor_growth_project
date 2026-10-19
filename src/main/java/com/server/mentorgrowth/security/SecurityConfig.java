@@ -3,8 +3,10 @@ package com.server.mentorgrowth.security;
 import com.server.mentorgrowth.filter.JwtFilterChain;
 import com.server.mentorgrowth.services.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -32,6 +34,9 @@ public class SecurityConfig {
     private final JwtFilterChain jwtFilterChain;
     private final UserDetailsServiceImpl userDetailsService;
 
+    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
+    private String allowedOrigins;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http
@@ -42,14 +47,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")
                         .permitAll()
-                        .requestMatchers("/actuator/**")
+                        .requestMatchers("/actuator/health", "/actuator/health/**")
                         .permitAll()
-                        .requestMatchers("/api/mentorship/**")
-                        .hasAnyRole("MENTOR", "ADMIN")
-                        .requestMatchers("/api/notification/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/payment/paystack")
+                        .permitAll()
+                        .requestMatchers("/api/v1/mentorship/**")
+                        .hasAnyRole("MENTOR", "MENTEE", "ADMIN")
+                        .requestMatchers("/api/v1/session/**")
+                        .hasAnyRole("MENTOR", "MENTEE", "ADMIN")
+                        .requestMatchers("/api/v1/notification/**")
+                        .hasAnyRole("MENTOR", "MENTEE", "ADMIN")
                         .requestMatchers("/api/v1/payment/**")
-                        .hasAnyRole("MENTEE", "ADMIN")
+                        .hasAnyRole("MENTEE", "MENTOR", "ADMIN")
                         .anyRequest()
                         .authenticated()
                 )
@@ -67,9 +76,9 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login/google")
-                        .defaultSuccessUrl("/google/oauth2/authenticated")
-                        .failureUrl("/login?error=true")
+                        .loginPage("/api/v1/auth/login/google")
+                        .defaultSuccessUrl("/api/v1/auth/google/oauth2/authenticated", true)
+                        .failureUrl("/api/v1/auth/login?error=true")
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -101,9 +110,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList());
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "x-paystack-signature"));
         configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
@@ -114,7 +126,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebClient webClient(){
+    public WebClient webClient() {
         return WebClient.create();
     }
 }

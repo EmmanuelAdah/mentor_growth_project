@@ -9,6 +9,7 @@ import java.util.Map;
 public interface UserService {
 
     UserResponse findById(String id);
+    User getUserById(String id);
     User findByEmail(String email);
     List<UserResponse> findAllUsers();
     Map<String, UserResponse> findAndMapUsersByIds(List<String> ids, String userId, String mentorId);

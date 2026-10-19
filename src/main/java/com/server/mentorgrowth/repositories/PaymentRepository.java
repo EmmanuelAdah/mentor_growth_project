@@ -8,9 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface PaymentRepository extends JpaRepository<Payment, Long> {
+public interface PaymentRepository extends JpaRepository<Payment, String> {
     Optional<Payment> findByReference(String reference);
-    Optional<Payment> findById(String id);
     List<Payment> findByMentee_Id(String menteeId);
 
     @Query("SELECT p FROM Payment p " +

@@ -24,10 +24,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewResponse createReview(ReviewRequest reviewRequest) {
-        if (userService.existById(reviewRequest.getUserId()))
+        if (!userService.existById(reviewRequest.getUserId()))
             throw new UserNotFoundException("Invalid user ID: " + reviewRequest.getUserId());
 
-        if (userService.existById(reviewRequest.getMentorId()))
+        if (!userService.existById(reviewRequest.getMentorId()))
             throw new UserNotFoundException("Invalid mentor ID: " + reviewRequest.getMentorId());
 
         Review review = new Review();

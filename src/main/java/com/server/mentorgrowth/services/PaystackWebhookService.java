@@ -40,14 +40,14 @@ public class PaystackWebhookService {
             String event = jsonNode.get("event").asText();
 
             if ("charge.success".equals(event)) {
-
                 JsonNode data = jsonNode.get("data");
                 String reference = data.get("reference").asText();
                 String status = data.get("status").asText();
-                long amount = data.get("amount").asLong();
+                // Paystack sends amount in kobo/pesewas — convert to major units
+                double amountInMajorUnits = data.get("amount").asLong() / 100.0;
 
                 log.info("Webhook processed for: {}", reference);
-                paymentService.handleSuccessfulPayment(reference, amount, status);
+                paymentService.handleSuccessfulPayment(reference, amountInMajorUnits, status);
             }
         } catch (Exception e) {
             throw new RuntimeException("Webhook processing failed", e);

@@ -5,9 +5,9 @@ import com.server.mentorgrowth.dtos.requests.PaymentRequest;
 import com.server.mentorgrowth.dtos.requests.VerifyPaymentRequest;
 import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
-import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.exceptions.*;
-import com.server.mentorgrowth.models.*;
+import com.server.mentorgrowth.models.Payment;
+import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.PaymentRepository;
 import com.server.mentorgrowth.services.interfaces.PaymentService;
 import com.server.mentorgrowth.utils.Mapper;
@@ -25,7 +25,6 @@ import tools.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import static com.server.mentorgrowth.utils.Mapper.mapPayment;
 
 @Slf4j
@@ -53,22 +52,20 @@ public class PaymentServiceImpl implements PaymentService {
     private String routingKey;
 
     @Override
+    @Transactional
     public InitiatePaymentResponse createPayment(PaymentRequest request) {
         log.info("Initiating payment for mentee: {} and mentor: {}", request.getUserId(), request.getMentorId());
-        List<String> ids = List.of(request.getUserId(), request.getMentorId());
 
-        Map<String, UserResponse> users = userService.findAndMapUsersByIds(ids, request.getUserId(), request.getMentorId());
-
-        UserResponse savedMentee = users.get(request.getUserId());
-        UserResponse savedMentor = users.get(request.getMentorId());
+        User mentee = userService.getUserById(request.getUserId());
+        User mentor = userService.getUserById(request.getMentorId());
 
         Map<String, Object> paymentDetails = Map.of(
-                "email", savedMentee.getEmail(),
-                "amount", (request.getAmount() * 100)
+                "email", mentee.getEmail(),
+                "amount", (long) (request.getAmount() * 100)
         );
 
         String paymentResponse = webClient.post()
-                .uri(baseUri + "/initialize" )
+                .uri(baseUri + "/initialize")
                 .header("Authorization", "Bearer " + secretKey)
                 .header("Content-type", "application/json")
                 .bodyValue(paymentDetails)
@@ -77,66 +74,75 @@ public class PaymentServiceImpl implements PaymentService {
                 .block();
 
         Map<String, Object> response = processPaymentResponse(paymentResponse);
-        User mentee = modelMapper.map(Objects.requireNonNull(savedMentee), User.class);
-        User mentor = modelMapper.map(Objects.requireNonNull(savedMentor), User.class);
-
         Payment payment = mapPayment(mentor, mentee, request, response);
-        log.info("Payment initiated via reference: {}", payment.getReference());
+        Payment savedPayment = paymentRepository.save(payment);
+
         String reference = response.get("reference").toString();
-
         redisTemplate.opsForValue()
-                .set("Payment: " + reference, payment, Duration.ofMinutes(10));
+                .set("Payment: " + reference, savedPayment.getId(), Duration.ofMinutes(10));
 
+        log.info("Payment initiated via reference: {}", reference);
         String authUrl = response.get("authorizationUrl").toString();
-
         return new InitiatePaymentResponse(authUrl, reference);
     }
 
     @Override
+    @Transactional
     public PaymentResponse verifyPayment(VerifyPaymentRequest request) {
-
         Payment existingPayment = paymentRepository.findByReference(request.getPaymentReference())
-                .orElseThrow(() -> new InvalidPaymentReferenceException("Invalid payment reference: " + request.getPaymentReference()));
+                .orElseThrow(() -> new InvalidPaymentReferenceException(
+                        "Invalid payment reference: " + request.getPaymentReference()));
+
+        if ("success".equalsIgnoreCase(existingPayment.getStatus())) {
+            return mapPayment(existingPayment);
+        }
 
         String verificationDetails = webClient.get()
-                                                .uri(baseUri + "/verify/" + existingPayment.getReference())
-                                                .header("Authorization", "Bearer " + secretKey)
-                                                .retrieve()
-                                                .bodyToMono(String.class)
-                                                .block();
+                .uri(baseUri + "/verify/" + existingPayment.getReference())
+                .header("Authorization", "Bearer " + secretKey)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
         String paymentStatus = getPaymentStatus(verificationDetails);
         existingPayment.setStatus(paymentStatus);
         Payment payment = paymentRepository.save(existingPayment);
 
-        if(paymentStatus.equals("success")) {
-            notifyUsers(existingPayment, payment.getMentor());
+        if ("success".equalsIgnoreCase(paymentStatus)) {
+            notifyUsers(payment);
         }
         return mapPayment(payment);
     }
 
     @Transactional
-    public void handleSuccessfulPayment(String reference, double amount, String status) {
-
-        Payment payment = (Payment) redisTemplate.opsForValue().get("Payment: " + reference);
+    public void handleSuccessfulPayment(String reference, double amountInMajorUnits, String status) {
+        Payment payment = paymentRepository.findByReference(reference).orElse(null);
 
         if (payment == null) {
             log.error("Payment not found for reference: {}", reference);
             return;
         }
 
-        payment.setStatus(status);
-        payment.setAmount(amount);
+        if ("success".equalsIgnoreCase(payment.getStatus())) {
+            log.info("Ignoring duplicate webhook for already successful payment: {}", reference);
+            return;
+        }
 
-        paymentRepository.save(payment);
+        payment.setStatus(status);
+        payment.setAmount(amountInMajorUnits);
+        Payment saved = paymentRepository.save(payment);
+
+        if ("success".equalsIgnoreCase(status)) {
+            notifyUsers(saved);
+        }
     }
 
-    private void notifyUsers(Payment payment, User user) {
+    private void notifyUsers(Payment payment) {
         String message = String.format(
                 "You have received a payment of %s %.2f from %s for your services.",
                 payment.getCurrency(),
                 payment.getAmount(),
-                user.getFirstName() + " " + user.getLastName()
+                payment.getMentee().getFirstName() + " " + payment.getMentee().getLastName()
         );
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .userId(payment.getMentor().getId())
@@ -151,8 +157,8 @@ public class PaymentServiceImpl implements PaymentService {
         JsonNode payload = mapper.readTree(verificationDetails);
 
         return payload.get("data")
-                        .path("status")
-                        .asString();
+                .path("status")
+                .asString();
     }
 
     public Map<String, Object> processPaymentResponse(String payment) {
@@ -183,8 +189,9 @@ public class PaymentServiceImpl implements PaymentService {
     public List<PaymentResponse> findAll() {
         List<Payment> payments = paymentRepository.findAll();
 
-        if (payments.isEmpty())
+        if (payments.isEmpty()) {
             throw new NoPaymentFoundException("No payments found");
+        }
 
         return payments
                 .stream()
@@ -196,8 +203,9 @@ public class PaymentServiceImpl implements PaymentService {
     public List<PaymentResponse> findByUserId(String userId) {
         List<Payment> payments = paymentRepository.findByMentee_Id(userId);
 
-        if (payments.isEmpty())
+        if (payments.isEmpty()) {
             throw new NoPaymentFoundException("No payments found with user ID: " + userId);
+        }
 
         return payments.stream()
                 .map(payment -> modelMapper.map(payment, PaymentResponse.class))
@@ -208,7 +216,7 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse findByReference(String reference) {
         return paymentRepository.findByReference(reference)
                 .map(payment -> modelMapper.map(payment, PaymentResponse.class))
-                .orElseThrow(()-> new InvalidPaymentReferenceException("Invalid Payment Reference: " + reference));
+                .orElseThrow(() -> new InvalidPaymentReferenceException("Invalid Payment Reference: " + reference));
     }
 
     @Override
