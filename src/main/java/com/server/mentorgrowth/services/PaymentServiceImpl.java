@@ -7,6 +7,7 @@ import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.exceptions.*;
 import com.server.mentorgrowth.models.Payment;
+import com.server.mentorgrowth.models.Role;
 import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.PaymentRepository;
 import com.server.mentorgrowth.services.interfaces.PaymentService;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.reactive.function.client.WebClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -53,15 +55,19 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public InitiatePaymentResponse createPayment(PaymentRequest request) {
-        log.info("Initiating payment for mentee: {} and mentor: {}", request.getUserId(), request.getMentorId());
+    public InitiatePaymentResponse createPayment(PaymentRequest request, String currentUserId) {
+        log.info("Initiating payment for mentee: {} and mentor: {}", currentUserId, request.getMentorId());
 
-        User mentee = userService.getUserById(request.getUserId());
+        User mentee = userService.getUserById(currentUserId);
         User mentor = userService.getUserById(request.getMentorId());
+        if (mentee.getRole() != Role.ROLE_MENTEE || mentor.getRole() != Role.ROLE_MENTOR) {
+            throw new AccessDeniedException("Only a mentee can pay a mentor");
+        }
 
         Map<String, Object> paymentDetails = Map.of(
                 "email", mentee.getEmail(),
-                "amount", (long) (request.getAmount() * 100)
+                "amount", Math.round(request.getAmount() * 100),
+                "currency", request.getCurrency()
         );
 
         String paymentResponse = webClient.post()
@@ -88,10 +94,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentResponse verifyPayment(VerifyPaymentRequest request) {
-        Payment existingPayment = paymentRepository.findByReference(request.getPaymentReference())
+    public PaymentResponse verifyPayment(VerifyPaymentRequest request, String currentUserId) {
+        Payment existingPayment = paymentRepository.findByReferenceAndParticipantId(
+                        request.getPaymentReference(), currentUserId)
                 .orElseThrow(() -> new InvalidPaymentReferenceException(
-                        "Invalid payment reference: " + request.getPaymentReference()));
+                        "Invalid payment reference"));
 
         if ("success".equalsIgnoreCase(existingPayment.getStatus())) {
             return mapPayment(existingPayment);
@@ -104,7 +111,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .bodyToMono(String.class)
                 .block();
 
-        String paymentStatus = getPaymentStatus(verificationDetails);
+        String paymentStatus = getPaymentStatus(verificationDetails, existingPayment);
         existingPayment.setStatus(paymentStatus);
         Payment payment = paymentRepository.save(existingPayment);
 
@@ -115,7 +122,11 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional
-    public void handleSuccessfulPayment(String reference, double amountInMajorUnits, String status) {
+    public void handleSuccessfulPayment(
+            String reference,
+            double amountInMajorUnits,
+            String currency,
+            String status) {
         Payment payment = paymentRepository.findByReference(reference).orElse(null);
 
         if (payment == null) {
@@ -128,13 +139,17 @@ public class PaymentServiceImpl implements PaymentService {
             return;
         }
 
-        payment.setStatus(status);
-        payment.setAmount(amountInMajorUnits);
+        if (!"success".equalsIgnoreCase(status)
+                || Math.round(amountInMajorUnits * 100) != Math.round(payment.getAmount() * 100)
+                || currency == null
+                || !currency.equalsIgnoreCase(payment.getCurrency())) {
+            throw new IncompleteTransactionException("Payment details did not match the initiated transaction");
+        }
+
+        payment.setStatus("success");
         Payment saved = paymentRepository.save(payment);
 
-        if ("success".equalsIgnoreCase(status)) {
-            notifyUsers(saved);
-        }
+        notifyUsers(saved);
     }
 
     private void notifyUsers(Payment payment) {
@@ -152,13 +167,22 @@ public class PaymentServiceImpl implements PaymentService {
         rabbitTemplate.convertAndSend(exchangeName, routingKey, notificationRequest);
     }
 
-    private String getPaymentStatus(String verificationDetails) {
+    private String getPaymentStatus(String verificationDetails, Payment payment) {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode payload = mapper.readTree(verificationDetails);
+        JsonNode data = mapper.readTree(verificationDetails).path("data");
+        String reference = data.path("reference").asString();
+        long amount = data.path("amount").asLong();
+        String currency = data.path("currency").asString();
 
-        return payload.get("data")
-                .path("status")
-                .asString();
+        if (data.isMissingNode()
+                || !payment.getReference().equals(reference)
+                || amount != Math.round(payment.getAmount() * 100)
+                || currency == null
+                || !currency.equalsIgnoreCase(payment.getCurrency())) {
+            throw new IncompleteTransactionException("Payment details did not match the initiated transaction");
+        }
+
+        return data.path("status").asString();
     }
 
     public Map<String, Object> processPaymentResponse(String payment) {
@@ -179,10 +203,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse findById(String id) {
-        return paymentRepository.findById(id)
+    public PaymentResponse findById(String id, String currentUserId) {
+        return paymentRepository.findByIdAndParticipantId(id, currentUserId)
                 .map(Mapper::mapPayment)
-                .orElseThrow(() -> new InvalidPaymentIdentityException("Invalid payment ID: " + id));
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
     }
 
     @Override
@@ -201,7 +225,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentResponse> findByUserId(String userId) {
-        List<Payment> payments = paymentRepository.findByMentee_Id(userId);
+        List<Payment> payments = paymentRepository.findByParticipantId(userId);
 
         if (payments.isEmpty()) {
             throw new NoPaymentFoundException("No payments found with user ID: " + userId);
@@ -213,10 +237,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse findByReference(String reference) {
-        return paymentRepository.findByReference(reference)
+    public PaymentResponse findByReference(String reference, String currentUserId) {
+        return paymentRepository.findByReferenceAndParticipantId(reference, currentUserId)
                 .map(payment -> modelMapper.map(payment, PaymentResponse.class))
-                .orElseThrow(() -> new InvalidPaymentReferenceException("Invalid Payment Reference: " + reference));
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
     }
 
     @Override

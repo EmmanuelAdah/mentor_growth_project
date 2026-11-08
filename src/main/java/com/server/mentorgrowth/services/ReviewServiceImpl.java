@@ -5,12 +5,15 @@ import com.server.mentorgrowth.dtos.response.ReviewResponse;
 import com.server.mentorgrowth.exceptions.NoReviewFoundException;
 import com.server.mentorgrowth.exceptions.UserNotFoundException;
 import com.server.mentorgrowth.models.Review;
+import com.server.mentorgrowth.models.Role;
+import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.ReviewRepository;
 import com.server.mentorgrowth.services.interfaces.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,15 +26,15 @@ public class ReviewServiceImpl implements ReviewService {
     private final ModelMapper modelMapper;
 
     @Override
-    public ReviewResponse createReview(ReviewRequest reviewRequest) {
-        if (!userService.existById(reviewRequest.getUserId()))
-            throw new UserNotFoundException("Invalid user ID: " + reviewRequest.getUserId());
-
-        if (!userService.existById(reviewRequest.getMentorId()))
-            throw new UserNotFoundException("Invalid mentor ID: " + reviewRequest.getMentorId());
+    public ReviewResponse createReview(ReviewRequest reviewRequest, String currentUserId) {
+        User user = userService.getUserById(currentUserId);
+        User mentor = userService.getUserById(reviewRequest.getMentorId());
+        if (user.getRole() != Role.ROLE_MENTEE || mentor.getRole() != Role.ROLE_MENTOR) {
+            throw new AccessDeniedException("Only a mentee can review a mentor");
+        }
 
         Review review = new Review();
-        review.setUserId(reviewRequest.getUserId());
+        review.setUserId(currentUserId);
         review.setMentorId(reviewRequest.getMentorId());
         review.setComment(reviewRequest.getComment());
 
@@ -69,17 +72,19 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteById(String id){
-        if (!reviewRepository.existsById(id)) {
-            throw new NoReviewFoundException("Review not found with id: " + id);
+    public void deleteById(String id, String currentUserId){
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new NoReviewFoundException("Review not found"));
+        if (!review.getUserId().equals(currentUserId)) {
+            throw new AccessDeniedException("You can only delete your own reviews");
         }
-        reviewRepository.deleteById(id);
+        reviewRepository.delete(review);
     }
 
     @Override
-    public void deleteByUserId(String id) {
-        long deletedItems = reviewRepository.deleteByUserId(id);
+    public void deleteByUserId(String currentUserId) {
+        long deletedItems = reviewRepository.deleteByUserId(currentUserId);
         if (deletedItems < 1)
-            throw new NoReviewFoundException("No review found with the given ID: " + id);
+            throw new NoReviewFoundException("No reviews found for the current user");
     }
 }

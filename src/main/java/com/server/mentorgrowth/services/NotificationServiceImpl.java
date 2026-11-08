@@ -60,16 +60,20 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public @Nullable NotificationResponse findById(String id) {
-        return Objects.requireNonNull(notificationRepository.findById(id))
+    public @Nullable NotificationResponse findById(String id, String currentUserId) {
+        return Objects.requireNonNull(notificationRepository.findByIdAndUserId(id, currentUserId))
                 .map(notification -> modelMapper.map(notification, NotificationResponse.class))
                 .orElseThrow(()-> new NotificationNotFoundException("Notification not found with ID: " + id));
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(String id, String currentUserId) {
         try {
-            notificationRepository.deleteById(id);
+            if (notificationRepository.deleteByIdAndUserId(id, currentUserId) == 0) {
+                throw new NotificationNotFoundException("Notification not found with ID: " + id);
+            }
+        } catch (NotificationNotFoundException ex) {
+            throw ex;
         } catch (Exception e) {
             throw new DeleteNotificationException("Notification not deleted successfully");
         }

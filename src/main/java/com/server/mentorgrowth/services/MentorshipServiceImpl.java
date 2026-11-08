@@ -10,12 +10,14 @@ import com.server.mentorgrowth.exceptions.MentorshipNotFoundException;
 import com.server.mentorgrowth.models.Goal;
 import com.server.mentorgrowth.models.Mentorship;
 import com.server.mentorgrowth.models.MentorshipStatus;
+import com.server.mentorgrowth.models.Role;
 import com.server.mentorgrowth.models.User;
 import com.server.mentorgrowth.repositories.MentorshipRepository;
 import com.server.mentorgrowth.services.interfaces.MentorshipService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
@@ -28,11 +30,15 @@ public class MentorshipServiceImpl implements MentorshipService {
 
     @Override
     @Transactional
-    public MentorshipResponse createMentorship(MentorshipRequest request) {
-        log.info("Creating mentorship between mentee {} and mentor {}", request.getUserId(), request.getMentorId());
+    public MentorshipResponse createMentorship(MentorshipRequest request, String currentUserId) {
+        log.info("Creating mentorship for mentee {} and mentor {}", currentUserId, request.getMentorId());
 
-        User mentee = userService.getUserById(request.getUserId());
+        User mentee = userService.getUserById(currentUserId);
         User mentor = userService.getUserById(request.getMentorId());
+
+        if (mentee.getRole() != Role.ROLE_MENTEE || mentor.getRole() != Role.ROLE_MENTOR) {
+            throw new AccessDeniedException("Only a mentee can request mentorship from a mentor");
+        }
 
         Mentorship mentorship = Mentorship.builder()
                 .mentee(mentee)
@@ -46,8 +52,10 @@ public class MentorshipServiceImpl implements MentorshipService {
 
     @Override
     @Transactional(readOnly = true)
-    public MentorshipResponse findById(String id) {
-        return toResponse(getMentorshipEntity(id));
+    public MentorshipResponse findById(String id, String currentUserId) {
+        Mentorship mentorship = getMentorshipEntity(id);
+        ensureParticipant(mentorship, currentUserId);
+        return toResponse(mentorship);
     }
 
     @Override
@@ -59,8 +67,9 @@ public class MentorshipServiceImpl implements MentorshipService {
 
     @Override
     @Transactional
-    public MentorshipResponse createMentorshipGoals(SetGoalsRequest request) {
+    public MentorshipResponse createMentorshipGoals(SetGoalsRequest request, String currentUserId) {
         Mentorship mentorship = getMentorshipEntity(request.getMentorshipId());
+        ensureParticipant(mentorship, currentUserId);
 
         for (GoalRequest goalRequest : request.getGoals()) {
             Goal goal = Goal.builder()
@@ -75,6 +84,14 @@ public class MentorshipServiceImpl implements MentorshipService {
 
         Mentorship saved = mentorshipRepository.save(mentorship);
         return toResponse(saved);
+    }
+
+    private void ensureParticipant(Mentorship mentorship, String userId) {
+        boolean isParticipant = mentorship.getMentee().getId().equals(userId)
+                || mentorship.getMentor().getId().equals(userId);
+        if (!isParticipant) {
+            throw new AccessDeniedException("You are not a participant in this mentorship");
+        }
     }
 
     private MentorshipResponse toResponse(Mentorship mentorship) {

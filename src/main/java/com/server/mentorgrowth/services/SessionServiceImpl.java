@@ -8,6 +8,7 @@ import com.server.mentorgrowth.dtos.response.SessionResponse;
 import com.server.mentorgrowth.exceptions.InvalidMentorshipException;
 import com.server.mentorgrowth.exceptions.ServerConnectionException;
 import com.server.mentorgrowth.models.Mentorship;
+import com.server.mentorgrowth.models.Role;
 import com.server.mentorgrowth.models.Session;
 import com.server.mentorgrowth.repositories.SessionRepository;
 import com.server.mentorgrowth.services.interfaces.MentorshipService;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.Instant;
@@ -38,7 +40,7 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     @Transactional
-    public SessionResponse createSession(SessionRequest request) {
+    public SessionResponse createSession(SessionRequest request, String currentUserId) {
         Calendar googleCalendar = googleCalendarProvider.getIfAvailable();
         if (googleCalendar == null) {
             throw new ServerConnectionException("Google Calendar is not configured");
@@ -49,6 +51,10 @@ public class SessionServiceImpl implements SessionService {
 
         if (mentorship.getMentor() == null || mentorship.getMentee() == null) {
             throw new InvalidMentorshipException("Mentorship is missing mentor or mentee");
+        }
+        if (mentorship.getMentor().getRole() != Role.ROLE_MENTOR
+                || !mentorship.getMentor().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("Only the mentor in this mentorship can schedule a session");
         }
 
         long durationMs = request.getDurationInMinutes() * 60_000L;
