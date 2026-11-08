@@ -24,6 +24,10 @@ public class Mapper {
             throw new InvalidRoleException("Invalid role");
         }
 
+        if (role == Role.ROLE_ADMIN) {
+            throw new InvalidRoleException("Administrator accounts cannot be self-registered");
+        }
+
         User user = switch (role) {
             case ROLE_MENTOR -> new Mentor();
             case ROLE_MENTEE -> new Mentee();
