@@ -4,6 +4,7 @@ import com.server.mentorgrowth.dtos.requests.LoginRequest;
 import com.server.mentorgrowth.dtos.requests.RegisterRequest;
 import com.server.mentorgrowth.dtos.response.UserAuthResponse;
 import com.server.mentorgrowth.exceptions.InvalidCredentialsException;
+import com.server.mentorgrowth.exceptions.InvalidRoleException;
 import com.server.mentorgrowth.exceptions.UserAlreadyExistException;
 import com.server.mentorgrowth.models.Role;
 import com.server.mentorgrowth.models.User;
@@ -97,6 +98,22 @@ class AuthServiceTest {
     }
 
     @Test
+    void saveUser_shouldRejectAdministratorSelfRegistration() {
+        RegisterRequest request = new RegisterRequest();
+        request.setFirstName("Admin");
+        request.setLastName("User");
+        request.setRole("ADMIN");
+        request.setEmail("admin@example.com");
+        request.setPassword("Password123@");
+
+        when(passwordEncoder.encode(request.getPassword())).thenReturn("encoded-password");
+        when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
+
+        assertThrows(InvalidRoleException.class, () -> authService.saveUser(request));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
     void login_shouldAuthenticateSuccessfully() {
         LoginRequest request = new LoginRequest();
         request.setEmail("test@example.com");
@@ -135,16 +152,9 @@ class AuthServiceTest {
         User savedUser = new User();
         savedUser.setId("25e6f3e4-8afb-4469-8917-fedbdb5bad18");
         savedUser.setEmail("google@example.com");
-
-        UserAuthResponse expectedResponse = UserAuthResponse.builder()
-                .id(savedUser.getId())
-                .email(savedUser.getEmail())
-                .build();
+        savedUser.setRole(Role.ROLE_MENTEE);
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        when(modelMapper.map(savedUser, UserAuthResponse.class))
-                .thenReturn(expectedResponse);
-
         UserAuthResponse response =
                 authService.googleLogin("google@example.com", "John Doe");
 
