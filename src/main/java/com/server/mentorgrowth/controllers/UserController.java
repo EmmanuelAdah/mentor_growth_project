@@ -2,9 +2,11 @@ package com.server.mentorgrowth.controllers;
 
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.services.UserServiceImpl;
+import com.server.mentorgrowth.models.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +17,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserServiceImpl userService;
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(userService.findById(user.getId()));
+    }
 
     @GetMapping("/get/all")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
@@ -43,8 +50,8 @@ public class UserController {
 
     @PutMapping(value = "/update/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> updateProfilePicture(
-            @RequestParam("id") String id,
+            @AuthenticationPrincipal User user,
             @RequestPart("file") MultipartFile file) {
-        return ResponseEntity.ok(userService.updateProfilePicture(id, file));
+        return ResponseEntity.ok(userService.updateProfilePicture(user.getId(), file));
     }
 }
