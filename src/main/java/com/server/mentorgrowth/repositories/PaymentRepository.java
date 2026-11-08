@@ -10,11 +10,20 @@ import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, String> {
     Optional<Payment> findByReference(String reference);
-    List<Payment> findByMentee_Id(String menteeId);
 
     @Query("SELECT p FROM Payment p " +
             "WHERE p.id = :paymentId " +
             "AND (p.mentee.id = :userId OR p.mentor.id = :userId)")
     Optional<Payment> findByIdAndParticipantId(@Param("paymentId") String paymentId,
                                                @Param("userId") String userId);
+
+    @Query("SELECT p FROM Payment p " +
+            "WHERE p.reference = :reference " +
+            "AND (p.mentee.id = :userId OR p.mentor.id = :userId)")
+    Optional<Payment> findByReferenceAndParticipantId(@Param("reference") String reference,
+                                                       @Param("userId") String userId);
+
+    @Query("SELECT p FROM Payment p " +
+            "WHERE p.mentee.id = :userId OR p.mentor.id = :userId")
+    List<Payment> findByParticipantId(@Param("userId") String userId);
 }

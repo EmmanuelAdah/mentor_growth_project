@@ -7,7 +7,7 @@ import java.util.List;
 public interface NotificationService {
 
     List<NotificationResponse> findByUserId(String userId);
-    NotificationResponse findById(String id);
-    void deleteById(String id);
-    void deleteByUserId(String id);
+    NotificationResponse findById(String id, String currentUserId);
+    void deleteById(String id, String currentUserId);
+    void deleteByUserId(String currentUserId);
 }
