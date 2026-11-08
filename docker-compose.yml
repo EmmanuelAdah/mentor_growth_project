@@ -48,6 +48,9 @@ services:
         condition: service_healthy
     environment:
       # Database
+      DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}?sslmode=require
+      DATASOURCE_USERNAME: ${DB_USER}
+      DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -59,21 +62,36 @@ services:
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
       # JPA
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_JPA_SHOW_SQL: "false"
 
       # Profile
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8080
 
       # Security
-      JWT_SECRET: ${JWT_SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ACCESS_TOKEN_TTL_MS: ${JWT_ACCESS_TOKEN_TTL_MS:-43200000}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
 
       # External services
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_NAME}
+      GOOGLE_OAUTH_REDIRECT_URL: ${GOOGLE_OAUTH_REDIRECT_URL}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      CLOUDINARY_NAME: ${CLOUDINARY_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY}
+      PAYSTACK_BASE_URI: ${PAYSTACK_BASE_URI}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE}
+      RABBITMQ_QUEUE: ${RABBITMQ_QUEUE}
+      RABBITMQ_ROUTING_KEY: ${RABBITMQ_ROUTING_KEY}
 
     ports:
       - "8080:8080"
@@ -82,9 +100,11 @@ services:
       - frontend
     volumes:
       - app_logs:/app/logs
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
 
   # Optional (disable in production ideally)
   pgadmin:
+    profiles: ["tools"]
     image: dpage/pgadmin4
     restart: unless-stopped
     environment:
@@ -104,7 +124,6 @@ networks:
   backend:
     internal: true
   frontend:
-    internal: true
 
 volumes:
   postgres_data:
