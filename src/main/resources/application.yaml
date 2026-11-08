@@ -1,5 +1,5 @@
 server:
-  port: 8089
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
@@ -17,9 +17,9 @@ spring:
 
 
   datasource:
-    url: ${LOCAL_DB_URL}
-    username: ${LOCAL_DB_USERNAME}
-    password: ${LOCAL_DB_PASSWORD}
+    url: ${DATASOURCE_URL:${LOCAL_DB_URL:jdbc:postgresql://localhost:5432/mentor_growth}}
+    username: ${DATASOURCE_USERNAME:${LOCAL_DB_USERNAME:postgres}}
+    password: ${DATASOURCE_PASSWORD:${LOCAL_DB_PASSWORD:}}
     driver-class-name: org.postgresql.Driver
 
   data:
@@ -34,8 +34,8 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: validate
+    show-sql: false
     open-in-view: false
 
   rabbitmq:
@@ -62,6 +62,7 @@ paystack:
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
+  access-token-ttl-ms: ${JWT_ACCESS_TOKEN_TTL_MS:43200000}
 
 cloudinary:
   cloud-name: ${CLOUDINARY_NAME}
@@ -78,3 +79,7 @@ rabbitmq:
 
 google:
   credentials: ${GOOGLE_APPLICATION_CREDENTIALS}
+
+app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:}
