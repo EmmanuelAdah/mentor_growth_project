@@ -6,8 +6,5 @@ import lombok.Data;
 @Data
 public class MentorshipRequest {
     @NotBlank
-    private String userId;
-
-    @NotBlank
     private String mentorId;
 }
