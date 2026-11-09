@@ -2,6 +2,7 @@ package com.server.mentorgrowth.utils;
 
 import com.server.mentorgrowth.exceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -11,9 +12,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestControllerAdvice
 public class GlobalErrorHandler {
+    private static final Logger log = LoggerFactory.getLogger(GlobalErrorHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(
@@ -49,7 +53,6 @@ public class GlobalErrorHandler {
             InvalidPasswordFormatException.class,
             InvalidUserIdentityException.class,
             InvalidPaymentIdentityException.class,
-            InvalidCredentialsException.class,
             InvalidRoleException.class,
             InvalidMentorshipException.class,
             InvalidPasswordLengthException.class
@@ -87,6 +90,13 @@ public class GlobalErrorHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error("Invalid email or password"));
+    }
+
     @ExceptionHandler({
             DeleteNotificationException.class,
             ServerConnectionException.class
@@ -100,19 +110,24 @@ public class GlobalErrorHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleDataIntegrityViolation(
             DataIntegrityViolationException ex) {
-        String message = "Database constraint violation";
-        if (ex.getRootCause() != null) {
-            message = ex.getRootCause().getMessage();
-        }
+        log.warn("Database constraint violation", ex);
         return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.error(message, Map.of("error", "DATA_INTEGRITY_VIOLATION")));
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error("Database constraint violation", Map.of("error", "DATA_INTEGRITY_VIOLATION")));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error("Access denied"));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+        log.error("Unhandled application error", ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(ex.getMessage() != null ? ex.getMessage() : "Unexpected server error"));
+                .body(ApiResponse.error("Unexpected server error"));
     }
 }

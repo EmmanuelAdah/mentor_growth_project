@@ -6,8 +6,8 @@ import com.server.mentorgrowth.dtos.response.MentorshipResponse;
 import com.server.mentorgrowth.models.Mentorship;
 
 public interface MentorshipService {
-    MentorshipResponse createMentorship(MentorshipRequest request);
-    MentorshipResponse findById(String id);
+    MentorshipResponse createMentorship(MentorshipRequest request, String currentUserId);
+    MentorshipResponse findById(String id, String currentUserId);
     Mentorship getMentorshipEntity(String id);
-    MentorshipResponse createMentorshipGoals(SetGoalsRequest request);
+    MentorshipResponse createMentorshipGoals(SetGoalsRequest request, String currentUserId);
 }

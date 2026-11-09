@@ -6,6 +6,7 @@ import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.services.interfaces.PaymentService;
 import com.server.mentorgrowth.services.PaystackWebhookService;
+import com.server.mentorgrowth.models.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -27,28 +29,37 @@ public class PaymentController {
     private String paystackSecret;
 
     @PostMapping("/create")
-    public ResponseEntity<InitiatePaymentResponse> createPayment(@Valid @RequestBody PaymentRequest paymentRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPayment(paymentRequest));
+    public ResponseEntity<InitiatePaymentResponse> createPayment(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody PaymentRequest paymentRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(paymentService.createPayment(paymentRequest, user.getId()));
     }
 
     @PutMapping("/verify")
-    public ResponseEntity<PaymentResponse> verifyPayment(@Valid @RequestBody VerifyPaymentRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(paymentService.verifyPayment(request));
+    public ResponseEntity<PaymentResponse> verifyPayment(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody VerifyPaymentRequest request) {
+        return ResponseEntity.ok(paymentService.verifyPayment(request, user.getId()));
     }
 
     @GetMapping("/id")
-    public ResponseEntity<PaymentResponse> findById(@RequestParam String id) {
-        return ResponseEntity.ok(paymentService.findById(id));
+    public ResponseEntity<PaymentResponse> findById(
+            @RequestParam String id,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(paymentService.findById(id, user.getId()));
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PaymentResponse>> findByUserId(@PathVariable String userId) {
-        return ResponseEntity.ok(paymentService.findByUserId(userId));
+    @GetMapping("/user")
+    public ResponseEntity<List<PaymentResponse>> findByUserId(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(paymentService.findByUserId(user.getId()));
     }
 
     @GetMapping("/get/payment/{reference}")
-    public ResponseEntity<PaymentResponse> findByReference(@PathVariable String reference) {
-        return ResponseEntity.ok(paymentService.findByReference(reference));
+    public ResponseEntity<PaymentResponse> findByReference(
+            @PathVariable String reference,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(paymentService.findByReference(reference, user.getId()));
     }
 
     @GetMapping("/get/payments")
@@ -57,9 +68,10 @@ public class PaymentController {
     }
 
     @GetMapping("/{paymentId}/receipt")
-    public ResponseEntity<byte[]> downloadReceipt(@PathVariable String paymentId,
-                                                  @RequestParam String userId) {
-        byte[] pdf = paymentService.generatePaymentReceipt(paymentId, userId);
+    public ResponseEntity<byte[]> downloadReceipt(
+            @PathVariable String paymentId,
+            @AuthenticationPrincipal User user) {
+        byte[] pdf = paymentService.generatePaymentReceipt(paymentId, user.getId());
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=receipt-" + paymentId + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)

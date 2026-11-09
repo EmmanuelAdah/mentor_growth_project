@@ -25,7 +25,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -34,7 +33,7 @@ public class SecurityConfig {
     private final JwtFilterChain jwtFilterChain;
     private final UserDetailsServiceImpl userDetailsService;
 
-    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
+    @Value("${app.cors.allowed-origins:}")
     private String allowedOrigins;
 
     @Bean
@@ -45,12 +44,18 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")
+                        .requestMatchers("/api/v1/auth/**")
                         .permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/payment/paystack")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/user/get/all",
+                                "/api/v1/user/mentees/all",
+                                "/api/v1/user/email/**",
+                                "/api/v1/payment/get/payments")
+                        .hasRole("ADMIN")
                         .requestMatchers("/api/v1/mentorship/**")
                         .hasAnyRole("MENTOR", "MENTEE", "ADMIN")
                         .requestMatchers("/api/v1/session/**")
@@ -67,10 +72,7 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(HttpStatus.FORBIDDEN.value());
                             response.setContentType("application/json");
-                            response.getWriter().write(
-                                    "{\"error\": \"Access Denied\", \"message\": \"" +
-                                            accessDeniedException.getMessage() + "\"}"
-                            );
+                            response.getWriter().write("{\"error\":\"Access denied\"}");
                         })
                 )
                 .authenticationProvider(authenticationProvider())
@@ -110,12 +112,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.stream(allowedOrigins.split(","))
+        configuration.setAllowedOrigins(java.util.Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .toList());
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "x-paystack-signature"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "x-paystack-signature"));
         configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);

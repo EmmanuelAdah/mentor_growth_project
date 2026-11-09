@@ -19,12 +19,22 @@ public class JwtService {
     @Value("${jwt.secret.key}")
     private String secretKey;
 
+    @Value("${jwt.access-token-ttl-ms:43200000}")
+    private long accessTokenTtlMillis;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("id", String.class));
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        return (!isTokenExpired(token) && userDetails.getUsername().equals(extractUsername(token)));
+        return userDetails instanceof User user
+                && !isTokenExpired(token)
+                && userDetails.getUsername().equals(extractUsername(token))
+                && user.getId().equals(extractUserId(token));
     }
 
     public boolean isTokenExpired(String token) {
@@ -46,6 +56,10 @@ public class JwtService {
     }
 
     public String generateToken(User user) {
+        if (accessTokenTtlMillis <= 0) {
+            throw new IllegalStateException("JWT access-token TTL must be positive");
+        }
+
         List<String> roles = user.getAuthorities().stream()
                 .map(authority -> Objects.requireNonNull(authority.getAuthority())
                         .replace("ROLE_", ""))
@@ -56,7 +70,7 @@ public class JwtService {
                 .claim("id", user.getId())
                 .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 12))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenTtlMillis))
                 .signWith(getSecretKey())
                 .compact();
     }

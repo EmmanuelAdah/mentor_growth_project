@@ -23,6 +23,8 @@ WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
 
+USER 10001
+
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \

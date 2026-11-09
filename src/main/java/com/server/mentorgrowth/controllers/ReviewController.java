@@ -3,8 +3,11 @@ package com.server.mentorgrowth.controllers;
 import com.server.mentorgrowth.dtos.requests.ReviewRequest;
 import com.server.mentorgrowth.dtos.response.ReviewResponse;
 import com.server.mentorgrowth.services.ReviewServiceImpl;
+import com.server.mentorgrowth.models.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -15,8 +18,10 @@ public class ReviewController {
     private final ReviewServiceImpl reviewService;
 
     @PostMapping("/create")
-    public ResponseEntity<ReviewResponse> createReview(@RequestBody ReviewRequest reviewRequest) {
-        return ResponseEntity.ok(reviewService.createReview(reviewRequest));
+    public ResponseEntity<ReviewResponse> createReview(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody ReviewRequest reviewRequest) {
+        return ResponseEntity.ok(reviewService.createReview(reviewRequest, user.getId()));
     }
 
     @GetMapping("/get/reviews")
@@ -35,12 +40,12 @@ public class ReviewController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteById(@PathVariable String id){
-        reviewService.deleteById(id);
+    public void deleteById(@PathVariable String id, @AuthenticationPrincipal User user){
+        reviewService.deleteById(id, user.getId());
     }
 
-    @DeleteMapping("/user/delete/{id}")
-    public void deleteByUserId(@PathVariable String id){
-        reviewService.deleteByUserId(id);
+    @DeleteMapping("/user")
+    public void deleteByUserId(@AuthenticationPrincipal User user){
+        reviewService.deleteByUserId(user.getId());
     }
 }

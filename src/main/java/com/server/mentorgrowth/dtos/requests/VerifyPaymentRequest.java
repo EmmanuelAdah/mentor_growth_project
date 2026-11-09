@@ -6,8 +6,5 @@ import lombok.Data;
 @Data
 public class VerifyPaymentRequest {
     @NotBlank
-    private String userId;
-
-    @NotBlank
     private String paymentReference;
 }

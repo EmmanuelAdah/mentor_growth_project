@@ -1,5 +1,5 @@
 server:
-  port: 8089
+  port: ${SERVER_PORT:8089}
 
 spring:
   config:
@@ -23,8 +23,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: update
+    show-sql: false
 
   security:
     oauth2:
@@ -46,9 +46,6 @@ spring:
     password: ${RABBITMQ_PASSWORD}
     port: ${RABBITMQ_PORT}
     host: ${RABBITMQ_HOST}
-
-  profiles:
-    active: local
 
 management:
   endpoints:
@@ -76,6 +73,10 @@ cloudinary:
   cloud-name: ${CLOUDINARY_NAME}
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
+
+app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
 
 #google:
 #  credentials: ${GOOGLE_APPLICATION_CREDENTIALS}

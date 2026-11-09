@@ -6,10 +6,10 @@ import java.util.List;
 
 public interface ReviewService {
 
-    ReviewResponse createReview(ReviewRequest reviewRequest);
+    ReviewResponse createReview(ReviewRequest reviewRequest, String currentUserId);
     List<ReviewResponse> findAll();
     ReviewResponse findById(String id);
     List<ReviewResponse> findByMentorId(String id);
-    void deleteById(String id);
-    void deleteByUserId(String id);
+    void deleteById(String id, String currentUserId);
+    void deleteByUserId(String currentUserId);
 }
