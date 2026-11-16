@@ -4,6 +4,8 @@ import com.server.mentorgrowth.dtos.requests.PaymentRequest;
 import com.server.mentorgrowth.dtos.requests.RegisterRequest;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.dtos.response.UserResponse;
+import com.server.mentorgrowth.enums.Role;
+import com.server.mentorgrowth.enums.User;
 import com.server.mentorgrowth.exceptions.InvalidEmailFormatException;
 import com.server.mentorgrowth.exceptions.InvalidNameFormatException;
 import com.server.mentorgrowth.exceptions.InvalidPasswordFormatException;

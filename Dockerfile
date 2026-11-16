@@ -1,7 +1,7 @@
 # =========================
 # Stage 1: Build
 # =========================
-FROM eclipse-temurin:21-jdk-ubi9-minimal AS builder
+FROM eclipse-temurin:25-jdk-noble AS builder
 WORKDIR /app
 
 COPY mvnw .
@@ -17,11 +17,15 @@ RUN ./mvnw clean package -DskipTests
 # =========================
 # Stage 2: Runtime
 # =========================
-FROM eclipse-temurin:21-jdk-ubi9-minimal
+FROM eclipse-temurin:25-jdk-noble
 
 WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends wget \
+    && rm -rf /var/lib/apt/lists/*
 
 USER 10001
 

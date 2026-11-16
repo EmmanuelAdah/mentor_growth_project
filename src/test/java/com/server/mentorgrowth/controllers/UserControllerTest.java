@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -19,7 +18,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 
-@SpringBootTest
 class UserControllerTest {
     UserServiceImpl userService;
     private WebTestClient webTestClient;
@@ -126,33 +124,33 @@ class UserControllerTest {
                 .hasSize(1);
     }
 
-//    @Test
-//    void updateProfilePicture_ShouldReturnUpdatedUser() {
-//        // 1. Arrange
-//        String userId = "7e5b7ff1-4281-4c67-9cdd-6297c4e4986e";
-//        UserResponse mockResponse = new UserResponse();
-//        mockResponse.setProfileImageUrl("http://images.com/photo.jpg");
-//
-//        when(userService.updateProfilePicture(eq(userId), any(MultipartFile.class)))
-//                .thenReturn(mockResponse);
-//
-//        // 2. Build the multipart data
-//        MultipartBodyBuilder builder = new MultipartBodyBuilder();
-//
-//        builder.part("id", userId, MediaType.APPLICATION_JSON);
-//
-//        // Build the file part
-//        builder.part("file", "fake-image-content".getBytes())
-//                .filename("profile.jpg")
-//                .contentType(MediaType.IMAGE_JPEG);
-//
-//        // 3. Act & Assert
-//        webTestClient.put()
-//                .uri("/api/v1/user/update/image") // No query params needed here
-//                .body(BodyInserters.fromMultipartData(builder.build()))
-//                .exchange()
-//                .expectStatus().isOk()
-//                .expectBody()
-//                .jsonPath("$.profileImageUrl").isEqualTo("http://images.com/photo.jpg");
-//    }
+    @Test
+    void updateProfilePicture_ShouldReturnUpdatedUser() {
+        // 1. Arrange
+        String userId = "7e5b7ff1-4281-4c67-9cdd-6297c4e4986e";
+        UserResponse mockResponse = new UserResponse();
+        mockResponse.setProfileImageUrl("http://images.com/photo.jpg");
+
+        when(userService.updateProfilePicture(eq(userId), any(MultipartFile.class)))
+                .thenReturn(mockResponse);
+
+        // 2. Build the multipart data
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+
+        builder.part("id", userId, MediaType.APPLICATION_JSON);
+
+        // Build the file part
+        builder.part("file", "fake-image-content".getBytes())
+                .filename("profile.jpg")
+                .contentType(MediaType.IMAGE_JPEG);
+
+        // 3. Act & Assert
+        webTestClient.put()
+                .uri("/api/v1/user/update/image") // No query params needed here
+                .body(BodyInserters.fromMultipartData(builder.build()))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.profileImageUrl").isEqualTo("http://images.com/photo.jpg");
+    }
 }

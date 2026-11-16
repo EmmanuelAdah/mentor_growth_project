@@ -1,7 +1,7 @@
 package com.server.mentorgrowth.services.interfaces;
 
 import com.server.mentorgrowth.dtos.response.UserResponse;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.User;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;

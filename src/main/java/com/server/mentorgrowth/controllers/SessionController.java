@@ -3,7 +3,7 @@ package com.server.mentorgrowth.controllers;
 import com.server.mentorgrowth.dtos.requests.SessionRequest;
 import com.server.mentorgrowth.dtos.response.SessionResponse;
 import com.server.mentorgrowth.services.interfaces.SessionService;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

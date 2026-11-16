@@ -3,7 +3,7 @@ package com.server.mentorgrowth.controllers;
 import com.server.mentorgrowth.dtos.requests.ReviewRequest;
 import com.server.mentorgrowth.dtos.response.ReviewResponse;
 import com.server.mentorgrowth.services.ReviewServiceImpl;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

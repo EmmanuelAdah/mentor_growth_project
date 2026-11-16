@@ -11,7 +11,7 @@ public abstract class AbstractRepositoryTest {
 
     @Container
     static PostgreSQLContainer<?> postgres =
-            new PostgreSQLContainer<>("postgres:18")
+            new PostgreSQLContainer<>("postgres:18-alpine")
                     .withDatabaseName("testdb")
                     .withUsername("test")
                     .withPassword("test");

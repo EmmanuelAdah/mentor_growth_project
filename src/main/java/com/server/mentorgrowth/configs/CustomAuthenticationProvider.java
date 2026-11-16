@@ -1,7 +1,7 @@
 //package com.server.mentorgrowth.config;
 //
 //import com.server.mentorgrowth.exceptions.InvalidCredentialsException;
-//import com.server.mentorgrowth.models.User;
+//import com.server.mentorgrowth.enums.User;
 //import com.server.mentorgrowth.services.UserDetailsServiceImpl;
 //import lombok.RequiredArgsConstructor;
 //import org.springframework.security.authentication.AuthenticationProvider;

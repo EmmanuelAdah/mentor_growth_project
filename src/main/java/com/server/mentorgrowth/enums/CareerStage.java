@@ -1,4 +1,4 @@
-package com.server.mentorgrowth.models;
+package com.server.mentorgrowth.enums;
 
 public enum CareerStage {
     STUDENT,

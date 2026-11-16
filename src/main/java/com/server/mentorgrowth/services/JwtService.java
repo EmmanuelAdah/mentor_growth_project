@@ -1,6 +1,6 @@
 package com.server.mentorgrowth.services;
 
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

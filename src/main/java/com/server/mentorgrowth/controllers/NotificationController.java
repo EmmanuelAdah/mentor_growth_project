@@ -2,7 +2,7 @@ package com.server.mentorgrowth.controllers;
 
 import com.server.mentorgrowth.dtos.response.NotificationResponse;
 import com.server.mentorgrowth.services.NotificationServiceImpl;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

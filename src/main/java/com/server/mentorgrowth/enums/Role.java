@@ -1,4 +1,4 @@
-package com.server.mentorgrowth.models;
+package com.server.mentorgrowth.enums;
 
 import lombok.Getter;
 

@@ -4,8 +4,8 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Uploader;
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.exceptions.UserNotFoundException;
-import com.server.mentorgrowth.models.Role;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.Role;
+import com.server.mentorgrowth.enums.User;
 import com.server.mentorgrowth.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -272,36 +273,36 @@ class UserServiceImplTest {
         assertTrue(result.isEmpty());
     }
 
-//    @Test
-//    void updateProfilePicture_Success() throws IOException {
-//        // Arrange
-//        String userId = "7e5b7ff1-4281-4c67-9cdd-6297c4e4986e";
-//        MultipartFile mockFile = new MockMultipartFile("file", "test.jpg", "image/jpeg", "image-data".getBytes());
-//
-//        User user = new User();
-//        user.setId(userId);
-//
-//        Map<String, Object> uploadResult = Map.of("secure_url", "https://cloudinary.com/photo.jpg");
-//
-//        UserResponse expectedResponse = new UserResponse();
-//        expectedResponse.setId(userId);
-//        expectedResponse.setProfileImage("https://cloudinary.com/photo.jpg");
-//
-//        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-//        when(cloudinary.uploader()).thenReturn(uploader);
-//        when(uploader.upload(any(InputStream.class), anyMap())).thenReturn(uploadResult);
-//        when(userRepository.save(any(User.class))).thenReturn(user);
-//        when(modelMapper.map(any(User.class), eq(UserResponse.class))).thenReturn(expectedResponse);
-//
-//        UserResponse result = userServiceImpl.updateProfilePicture(userId, mockFile);
-//
-//        assertNotNull(result);
-//        assertEquals("https://cloudinary.com/photo.jpg", result.getProfileImage());
-//        assertEquals(user.getId(), result.getId());
-//
-//        verify(userRepository).save(user);
-//        verify(uploader).upload(eq(mockFile.getBytes()), anyMap());
-//    }
+    @Test
+    void updateProfilePicture_Success() throws IOException {
+       // Arrange
+        String userId = "7e5b7ff1-4281-4c67-9cdd-6297c4e4986e";
+        MultipartFile mockFile = new MockMultipartFile("file", "test.jpg", "image/jpeg", "image-data".getBytes());
+
+        User user = new User();
+        user.setId(userId);
+
+        Map<String, Object> uploadResult = Map.of("secure_url", "https://cloudinary.com/photo.jpg");
+
+        UserResponse expectedResponse = new UserResponse();
+        expectedResponse.setId(userId);
+        expectedResponse.setProfileImageUrl("https://cloudinary.com/photo.jpg");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(cloudinary.uploader()).thenReturn(uploader);
+        when(uploader.upload(any(InputStream.class), anyMap())).thenReturn(uploadResult);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(modelMapper.map(any(User.class), eq(UserResponse.class))).thenReturn(expectedResponse);
+
+        UserResponse result = userServiceImpl.updateProfilePicture(userId, mockFile);
+
+        assertNotNull(result);
+        assertEquals("https://cloudinary.com/photo.jpg", result.getProfileImageUrl());
+        assertEquals(user.getId(), result.getId());
+
+        verify(userRepository).save(user);
+        verify(uploader).upload(eq(mockFile.getBytes()), anyMap());
+    }
 
     @Test
     void updateProfilePicture_UserNotFound() {

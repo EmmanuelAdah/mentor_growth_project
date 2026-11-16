@@ -2,13 +2,15 @@ package com.server.mentorgrowth.controllers;
 
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.services.UserServiceImpl;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -48,10 +50,31 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllMentees());
     }
 
-    @PutMapping(value = "/update/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(
+            value = "/update/image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<UserResponse> updateProfilePicture(
             @AuthenticationPrincipal User user,
-            @RequestPart("file") MultipartFile file) {
-        return ResponseEntity.ok(userService.updateProfilePicture(user.getId(), file));
+            @RequestPart("file") MultipartFile file
+    ) {
+        if (user == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Authentication required"
+            );
+        }
+
+        if (file == null || file.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Please upload an image"
+            );
+        }
+
+        return ResponseEntity.ok(
+                userService.updateProfilePicture(user.getId(), file)
+        );
     }
 }

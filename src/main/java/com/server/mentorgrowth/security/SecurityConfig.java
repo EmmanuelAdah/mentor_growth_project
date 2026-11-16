@@ -50,6 +50,10 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/payment/paystack")
                         .permitAll()
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/v1/user/update/image"
+                        ).hasAnyRole("MENTOR", "MENTEE", "ADMIN")
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/user/get/all",
                                 "/api/v1/user/mentees/all",

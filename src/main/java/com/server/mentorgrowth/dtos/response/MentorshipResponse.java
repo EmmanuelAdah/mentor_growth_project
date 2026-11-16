@@ -1,6 +1,6 @@
 package com.server.mentorgrowth.dtos.response;
 
-import com.server.mentorgrowth.models.MentorshipStatus;
+import com.server.mentorgrowth.enums.MentorshipStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

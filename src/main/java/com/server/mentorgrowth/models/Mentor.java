@@ -1,5 +1,6 @@
 package com.server.mentorgrowth.models;
 
+import com.server.mentorgrowth.enums.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
