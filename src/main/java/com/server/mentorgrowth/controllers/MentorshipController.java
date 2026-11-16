@@ -4,7 +4,7 @@ import com.server.mentorgrowth.dtos.requests.MentorshipRequest;
 import com.server.mentorgrowth.dtos.requests.SetGoalsRequest;
 import com.server.mentorgrowth.dtos.response.MentorshipResponse;
 import com.server.mentorgrowth.services.interfaces.MentorshipService;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

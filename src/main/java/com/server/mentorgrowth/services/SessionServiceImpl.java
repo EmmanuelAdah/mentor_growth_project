@@ -8,7 +8,7 @@ import com.server.mentorgrowth.dtos.response.SessionResponse;
 import com.server.mentorgrowth.exceptions.InvalidMentorshipException;
 import com.server.mentorgrowth.exceptions.ServerConnectionException;
 import com.server.mentorgrowth.models.Mentorship;
-import com.server.mentorgrowth.models.Role;
+import com.server.mentorgrowth.enums.Role;
 import com.server.mentorgrowth.models.Session;
 import com.server.mentorgrowth.repositories.SessionRepository;
 import com.server.mentorgrowth.services.interfaces.MentorshipService;

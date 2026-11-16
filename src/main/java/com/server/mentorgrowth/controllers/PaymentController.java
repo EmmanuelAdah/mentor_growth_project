@@ -6,7 +6,7 @@ import com.server.mentorgrowth.dtos.response.InitiatePaymentResponse;
 import com.server.mentorgrowth.dtos.response.PaymentResponse;
 import com.server.mentorgrowth.services.interfaces.PaymentService;
 import com.server.mentorgrowth.services.PaystackWebhookService;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
