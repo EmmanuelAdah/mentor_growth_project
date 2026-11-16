@@ -1,5 +1,7 @@
 package com.server.mentorgrowth.models;
 
+import com.server.mentorgrowth.enums.CareerStage;
+import com.server.mentorgrowth.enums.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

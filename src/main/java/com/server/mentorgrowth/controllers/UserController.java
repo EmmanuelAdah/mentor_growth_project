@@ -2,7 +2,7 @@ package com.server.mentorgrowth.controllers;
 
 import com.server.mentorgrowth.dtos.response.UserResponse;
 import com.server.mentorgrowth.services.UserServiceImpl;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

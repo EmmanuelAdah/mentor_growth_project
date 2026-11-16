@@ -1,6 +1,6 @@
 package com.server.mentorgrowth.services;
 
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
