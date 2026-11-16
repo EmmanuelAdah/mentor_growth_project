@@ -1,7 +1,7 @@
 package com.server.mentorgrowth.services;
 
-import com.server.mentorgrowth.models.Role;
-import com.server.mentorgrowth.models.User;
+import com.server.mentorgrowth.enums.Role;
+import com.server.mentorgrowth.enums.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
